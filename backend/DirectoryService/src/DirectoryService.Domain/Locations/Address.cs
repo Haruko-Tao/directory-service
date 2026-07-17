@@ -16,8 +16,8 @@ public class Address
         if (string.IsNullOrWhiteSpace(value))
             return Result<Address>.Failure("Адрес не может быть пустым!");
 
-        if (value.Length > 50)
-            return Result<Address>.Failure("Адрес не может быть длиннее 50 символов!");
+        if (value.Length > 200)
+            return Result<Address>.Failure("Адрес не может быть длиннее 200 символов!");
 
         return Result<Address>.Success(new Address(value));
     }
