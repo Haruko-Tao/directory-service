@@ -14,6 +14,13 @@ public class Location
     
     public DateTime UpdatedAt { get; private set; }
 
+    //EF Core
+    private Location()
+    {
+        Name = null!;
+        Address = null!;
+    }
+    
     private Location(Guid id, Name name, Address address, DateTime creadetAt, DateTime updatedAt)
     {
         Id = id;

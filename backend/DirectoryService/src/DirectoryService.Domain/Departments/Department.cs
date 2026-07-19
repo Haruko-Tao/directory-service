@@ -14,9 +14,17 @@ public class Department
     
     public DateTime CreatedAt { get; private set; }
     
-    public DateTime UpdateAt { get; private set; }
+    public DateTime UpdatedAt { get; private set; }
+    
+    //EF Core
+    private Department()
+    {
+        Name = null!;
+        Slug = null!;
+        Path = null!;
+    }
 
-    private Department(Guid id, Name name, Slug slug, Path path, Guid? parentId, DateTime createdAt, DateTime updateAt)
+    private Department(Guid id, Name name, Slug slug, Path path, Guid? parentId, DateTime createdAt, DateTime updatedAt)
     {
         Id = id;
         Name = name;
@@ -24,7 +32,7 @@ public class Department
         Path = path;
         ParentId = parentId;
         CreatedAt = createdAt;
-        UpdateAt = updateAt;
+        UpdatedAt = updatedAt;
     }
 
     public static Result<Department> Create(Name name, Slug slug, Path? parentPath, Guid? parentId)

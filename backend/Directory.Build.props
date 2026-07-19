@@ -32,10 +32,10 @@
         </PackageReference>
 
         <!-- Правила безопасности и корректности -->
-        <PackageReference Include="Meziantou.Analyzer">
+        <!--<PackageReference Include="Meziantou.Analyzer">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+        </PackageReference>j -->
 
         <!-- Правила для async/await -->
         <PackageReference Include="AsyncFixer">
