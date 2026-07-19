@@ -12,6 +12,12 @@ public class Position
     
     public DateTime UpdatedAt { get; private set; }
 
+    //EF Core
+    private Position()
+    {
+        Name = null!;
+    }
+    
     private Position(Guid id, Name name, DateTime createdAt, DateTime updatedAt)
     {
         Id = id;
