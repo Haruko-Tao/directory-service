@@ -3,6 +3,7 @@
   <PropertyGroup>
     
     <UserSecretsId>ad35cc6a-7714-4aa3-9780-fdeae4d57ab3</UserSecretsId>
+    <NoWarn>CA1515,NU1903</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
