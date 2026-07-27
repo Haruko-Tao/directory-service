@@ -1,3 +1,4 @@
+using DirectoryService.Core;
 using DirectoryService.Infrastructure.Postgres;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -12,6 +13,8 @@ builder.Services.AddHealthChecks();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddCore();
 
 var app = builder.Build();
 
