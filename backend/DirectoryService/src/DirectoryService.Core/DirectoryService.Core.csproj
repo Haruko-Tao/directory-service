@@ -1,13 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-   
+    <NoWarn>S112, CA2201</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Scrutor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DirectoryService.Contracts\DirectoryService.Contracts.csproj" />
+    <ProjectReference Include="..\DirectoryService.Domain\DirectoryService.Domain.csproj" />
   </ItemGroup>
 
 </Project>
