@@ -34,7 +34,13 @@ public class LocationsService
         }
 
         var nameResult = Name.Create(request.Name);
-        var addressResult = Address.Create(request.Address.Value);
+        
+        var addressResult = Address.Create(
+            request.Address.City,
+            request.Address.Street,
+            request.Address.House,
+            request.Address.Apartment);
+        
         var locationResult = Location.Create(nameResult.Value!, addressResult.Value!);
 
         await _locationsRepository.AddAsync(locationResult.Value!, cancellationToken);

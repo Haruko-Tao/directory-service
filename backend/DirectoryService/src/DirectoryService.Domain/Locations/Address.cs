@@ -4,21 +4,30 @@ namespace DirectoryService.Domain.Locations;
 
 public class Address
 {
-    public string Value { get; }
+    public string City { get; }
+    public string Street { get; }
+    public string House { get; }
+    public string? Apartment { get; }
 
-    private Address(string value)
+    private Address(string city, string street, string house, string? apartment)
     {
-        Value = value;
+        City = city;
+        Street = street;
+        House = house;
+        Apartment = apartment;
     }
 
-    public static Result<Address> Create(string value)
+    public static Result<Address> Create(string city, string street, string house, string? apartment)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Result<Address>.Failure("Адрес не может быть пустым!");
+        if (string.IsNullOrWhiteSpace(city))
+            return Result<Address>.Failure("Город не может быть пустым");
+        
+        if (string.IsNullOrWhiteSpace(street))
+            return Result<Address>.Failure("Улица не может быть пустой");
 
-        if (value.Length > 200)
-            return Result<Address>.Failure("Адрес не может быть длиннее 200 символов!");
+        if (string.IsNullOrWhiteSpace(house))
+            return Result<Address>.Failure("Дом не может быть пустым");
 
-        return Result<Address>.Success(new Address(value));
+        return Result<Address>.Success(new Address(city, street, house, apartment));
     }
 }

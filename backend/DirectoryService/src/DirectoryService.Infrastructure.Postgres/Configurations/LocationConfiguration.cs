@@ -22,11 +22,16 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(l => l.Address)
-            .HasColumnName("address")
-            .HasConversion(addres => addres.Value, value => Address.Create(value).Value!)
-            .IsRequired()
-            .HasMaxLength(200);
+        builder.ComplexProperty(l => l.Address,
+            address =>
+            {
+                address.Property(a => a.City).HasColumnName("city").IsRequired().HasMaxLength(100);
+                address.Property(a => a.Street).HasColumnName("street").IsRequired().HasMaxLength(200);
+                address.Property(a => a.House).HasColumnName("house").IsRequired().HasMaxLength(20);
+                address.Property(a => a.Apartment).HasColumnName("apartment").HasMaxLength(20);
+            });
+        
+            
 
         builder.Property(l => l.CreatedAt)
             .HasColumnName("created_at")
