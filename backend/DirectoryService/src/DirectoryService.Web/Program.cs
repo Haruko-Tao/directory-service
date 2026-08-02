@@ -11,8 +11,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddHealthChecks();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddCore();
 
