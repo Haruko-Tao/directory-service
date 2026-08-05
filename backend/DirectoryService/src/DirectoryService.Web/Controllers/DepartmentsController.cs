@@ -1,4 +1,5 @@
 ﻿using DirectoryService.Contracts.Departments;
+using DirectoryService.Core.Departments;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
@@ -7,10 +8,17 @@ namespace DirectoryService.Web.Controllers;
 [Route("departments")]
 public class DepartmentsController : ControllerBase
 {
+    private readonly DepartmentsService _departmentsService;
+    
+    public DepartmentsController(DepartmentsService departmentsService)
+    {
+        _departmentsService = departmentsService;
+    }
+    
     [HttpPost]
-    public IActionResult Create([FromBody] CreateDepartmentRequest request, CancellationToken cancellationToken)
-    { 
-        var id = Guid.NewGuid();
+    public async Task<IActionResult> Create([FromBody] CreateDepartmentRequest request, CancellationToken cancellationToken)
+    {
+        var id = await _departmentsService.Create(request, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id }, id);
     }
 

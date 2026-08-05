@@ -37,4 +37,10 @@ public class EfLocationsRepository : ILocationsRepository
         return await _dbContext.Locations
             .AnyAsync(l => l.Name == nameResult.Value!, cancellationToken);
     }
+
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Locations
+            .AnyAsync(l => l.Id == id, cancellationToken);
+    }
 }

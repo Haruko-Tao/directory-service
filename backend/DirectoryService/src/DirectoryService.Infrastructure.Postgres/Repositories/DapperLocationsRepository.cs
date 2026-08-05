@@ -67,4 +67,19 @@ public class DapperLocationsRepository : ILocationsRepository
 
         return await connection.ExecuteScalarAsync<bool>(command);
     }
+
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           SELECT EXISTS( 
+                           SELECT 1 FROM locations WHERE id = @Id
+                           )
+                           """;
+
+        await using var connection = new NpgsqlConnection(_connectionString);
+
+        var command = new CommandDefinition(sql, new { Id = id }, cancellationToken: cancellationToken);
+
+        return await connection.ExecuteScalarAsync<bool>(command);
+    }
 }
