@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Domain.Departments;
+﻿namespace DirectoryService.Domain;
 #pragma warning disable CA1000
 public class Result<T>
 {

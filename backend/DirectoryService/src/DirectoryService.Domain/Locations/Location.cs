@@ -36,4 +36,13 @@ public class Location
 
         return Result<Location>.Success(location);
     }
+
+    public Result Update(Name name, Address address)
+    {
+        Name = name;
+        Address = address;
+        UpdatedAt = DateTime.UtcNow;
+
+        return Result.Success();
+    }
 }

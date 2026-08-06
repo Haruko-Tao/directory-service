@@ -9,4 +9,8 @@ public interface ILocationsRepository
     Task<bool> IsNameTakenAsync(string name, CancellationToken cancellationToken);
 
     Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
+
+    Task<Location?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+
+    Task SaveAsync(CancellationToken cancellationToken);
 }

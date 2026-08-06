@@ -34,16 +34,34 @@ public class DepartmentsController : ControllerBase
         return Ok(Array.Empty<DepartmentResponse>());
     }
 
-    [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, [FromBody] UpdateDepartmentRequest request,
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateDepartmentRequest request,
         CancellationToken cancellationToken)
     {
-        return Ok();
+        await _departmentsService.Update(id, request, cancellationToken);
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
     public IActionResult Delete(Guid id, CancellationToken cancellationToken)
     {
+        return NoContent();
+    }
+
+    [HttpDelete("{departmentId:guid}/locations/{locationId:guid}")]
+    public async Task<IActionResult> RemoveLocation(Guid departmentId, Guid locationId, CancellationToken cancellationToken)
+    {
+        await _departmentsService.RemoveLocation(locationId, departmentId, cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpPost("{departmentId:guid}/locations/{locationId:guid}")]
+    public async Task<IActionResult> AddLocation(Guid departmentId, Guid locationId,
+        CancellationToken cancellationToken)
+    {
+        await _departmentsService.AddLocation(departmentId, locationId, cancellationToken);
+
         return NoContent();
     }
 }

@@ -43,4 +43,15 @@ public class EfLocationsRepository : ILocationsRepository
         return await _dbContext.Locations
             .AnyAsync(l => l.Id == id, cancellationToken);
     }
+
+    public async Task<Location?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Locations
+            .FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
+    }
+
+    public async Task SaveAsync(CancellationToken cancellationToken)
+    {
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

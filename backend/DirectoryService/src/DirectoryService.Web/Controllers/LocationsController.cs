@@ -34,10 +34,11 @@ public class LocationsController : ControllerBase
         return Ok(Array.Empty<LocationResponse>());
     }
 
-    [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, [FromBody] UpdateLocationRequest request, CancellationToken cancellationToken)
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLocationRequest request, CancellationToken cancellationToken)
     {
-        return Ok();
+        await _locationsService.Update(id, request, cancellationToken);
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
