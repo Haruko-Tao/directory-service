@@ -82,4 +82,14 @@ public class DapperLocationsRepository : ILocationsRepository
 
         return await connection.ExecuteScalarAsync<bool>(command);
     }
+
+    public Task<Location?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task SaveAsync(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }

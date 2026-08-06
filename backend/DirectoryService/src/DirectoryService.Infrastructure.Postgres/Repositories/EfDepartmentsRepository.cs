@@ -36,4 +36,29 @@ public class EfDepartmentsRepository : IDepartmentsRepository
     {
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<bool> ExistsDepartmentLocationAsync(Guid locationId, Guid departmentId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.DepartmentLocations
+            .AnyAsync(dl => dl.DepartmentId == departmentId && dl.LocationId == locationId,
+                cancellationToken: cancellationToken);
+
+    }
+
+    public async Task RemoveDepartmentLocationAsync(Guid locationId, Guid departmentId, CancellationToken cancellationToken)
+    {
+        var departmentLocation = await _dbContext.DepartmentLocations.FirstOrDefaultAsync(
+                dl => dl.DepartmentId == departmentId && dl.LocationId == locationId, cancellationToken);
+
+        if (departmentLocation is not null)
+            _dbContext.DepartmentLocations.Remove(departmentLocation);
+
+
+    }
+
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Departments
+            .AnyAsync(d => d.Id == id, cancellationToken);
+    }
 }

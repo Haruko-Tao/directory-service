@@ -1,4 +1,5 @@
 ﻿using DirectoryService.Contracts.Locations;
+using DirectoryService.Domain;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
 using FluentValidation;
@@ -46,5 +47,25 @@ public class LocationsService
         await _locationsRepository.AddAsync(locationResult.Value!, cancellationToken);
 
         return locationResult.Value!.Id;
+    }
+
+    public async Task Update(Guid id, UpdateLocationRequest request, CancellationToken cancellationToken)
+    {
+        var location = await _locationsRepository.GetByIdAsync(id, cancellationToken);
+        
+        if (location is null)
+            throw new Exception($"Локация с {id} не найдена");
+
+        var nameResult = Name.Create(request.Name);
+
+        var addressResult = Address.Create(request.Address.City, request.Address.Street, request.Address.House, request.Address.Apartment);
+
+        var updateResult = location.Update(nameResult.Value!, addressResult.Value!);
+        if (!updateResult.IsSuccess)
+        {
+            throw new Exception($"Не удалось обновить локацию с {id}");   
+        }
+        
+        await _locationsRepository.SaveAsync(cancellationToken);
     }
 }

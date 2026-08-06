@@ -12,4 +12,9 @@ public interface IDepartmentsRepository
     Task<Department?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task SaveAsync(CancellationToken cancellationToken);
+
+    Task<bool> ExistsDepartmentLocationAsync(Guid locationId, Guid departmentId, CancellationToken cancellationToken);
+
+    Task RemoveDepartmentLocationAsync(Guid locationId, Guid departmentId, CancellationToken cancellationToken);
+    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
 }

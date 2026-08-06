@@ -47,4 +47,12 @@ public class Department
 
         return Result<Department>.Success(department);
     }
+
+    public Result Update(Name name)
+    {
+        Name = name;
+        UpdatedAt = DateTime.UtcNow;
+
+        return Result.Success();
+    }
 }
