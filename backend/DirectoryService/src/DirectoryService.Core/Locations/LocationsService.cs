@@ -1,4 +1,6 @@
 ﻿using DirectoryService.Contracts.Locations;
+using DirectoryService.Core.Fails;
+using DirectoryService.Core.Locations.Exceptions;
 using DirectoryService.Domain;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
@@ -24,14 +26,14 @@ public class LocationsService
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            throw new ValidationException(validationResult.Errors);
+            throw new ValidationFailException(validationResult.Errors.Select(v => v.ErrorMessage));
         }
         
         //валидация бизнес логики
         var isNameTaken = await _locationsRepository.IsNameTakenAsync(request.Name, cancellationToken);
         if (isNameTaken)
         {
-            throw new Exception($"Локация с именем {request.Name} уже существует");
+            throw new LocationNameDuplicateException(request.Name);
         }
 
         var nameResult = Name.Create(request.Name);
@@ -54,17 +56,13 @@ public class LocationsService
         var location = await _locationsRepository.GetByIdAsync(id, cancellationToken);
         
         if (location is null)
-            throw new Exception($"Локация с {id} не найдена");
+            throw new LocationNotFoundException(id);
 
         var nameResult = Name.Create(request.Name);
 
         var addressResult = Address.Create(request.Address.City, request.Address.Street, request.Address.House, request.Address.Apartment);
 
-        var updateResult = location.Update(nameResult.Value!, addressResult.Value!);
-        if (!updateResult.IsSuccess)
-        {
-            throw new Exception($"Не удалось обновить локацию с {id}");   
-        }
+        location.Update(nameResult.Value!, addressResult.Value!);
         
         await _locationsRepository.SaveAsync(cancellationToken);
     }

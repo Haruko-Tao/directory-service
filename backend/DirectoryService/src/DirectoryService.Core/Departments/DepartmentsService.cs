@@ -1,5 +1,7 @@
 ﻿using DirectoryService.Contracts.Departments;
+using DirectoryService.Core.Departments.Exceptions;
 using DirectoryService.Core.Locations;
+using DirectoryService.Core.Locations.Exceptions;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
 using Path = DirectoryService.Domain.Departments.Path;
@@ -26,7 +28,7 @@ public class DepartmentsService
             var parent = await _departmentsRepository.GetByIdAsync(request.ParentId.Value, cancellationToken);
 
             if (parent == null)
-                throw new Exception("Родитель не найден");
+                throw new DepartmentNotFoundException(request.ParentId.Value);
 
             parentPath = parent.Path;
         }
@@ -35,7 +37,7 @@ public class DepartmentsService
         {
             var exist = await _locationsRepository.ExistsAsync(locationId, cancellationToken);
             if (!exist)
-                throw new Exception($"Локация {locationId} для отдела не найдены");
+                throw new LocationNotFoundException(locationId);
         }
 
         var nameResult = Name.Create(request.Name);
@@ -62,13 +64,11 @@ public class DepartmentsService
         var department = await _departmentsRepository.GetByIdAsync(id, cancellationToken);
         
         if (department is null)
-            throw new Exception($"Департамент с таким {id} не найден");
+            throw new DepartmentNotFoundException(id);
 
         var nameResult = Name.Create(request.Name);
 
-        var updateResult = department.Update(nameResult.Value!);
-        if (!updateResult.IsSuccess)
-            throw new Exception($"Обновление отдела с {id} не удалось");
+        department.Update(nameResult.Value!);
 
         await _departmentsRepository.SaveAsync(cancellationToken);
     }
@@ -79,12 +79,18 @@ public class DepartmentsService
         var existsDepartment = await _departmentsRepository.ExistsAsync(departmentId, cancellationToken);
 
         if (!existsDepartment || !existsLocation)
-            throw new Exception("Не удалось создать связь, т.к какой то из id не существует");
+        {
+            if (!existsDepartment)
+                throw new DepartmentNotFoundException(departmentId);
+
+            if (!existsLocation)
+                throw new LocationNotFoundException(locationId);
+        }
 
         var existsDepartmentLocationAsync = await _departmentsRepository.ExistsDepartmentLocationAsync(locationId, departmentId, cancellationToken);
 
         if (existsDepartmentLocationAsync)
-            throw new Exception($"Связь уже создана с {locationId} и {departmentId}");
+            throw new DepartmentLocationAlReadyExistsException(departmentId, locationId);
 
         var departmentLocation = DepartmentLocation.Create(departmentId, locationId);
 
@@ -99,7 +105,7 @@ public class DepartmentsService
             await _departmentsRepository.ExistsDepartmentLocationAsync(locationId, departmentId, cancellationToken);
 
         if (!existsDepartmentLocation)
-            throw new Exception("Связи не существует");
+            throw new DepartmentLocationNotFoundException(departmentId, locationId);
 
         await _departmentsRepository.RemoveDepartmentLocationAsync(locationId, departmentId, cancellationToken);
 
