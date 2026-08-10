@@ -1,4 +1,6 @@
-﻿using DirectoryService.Domain.Departments;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Domain.Departments;
+using DirectoryService.SharedKernel;
 
 namespace DirectoryService.Domain.DepartmentPositions;
 
@@ -17,16 +19,16 @@ public class DepartmentPosition
         PositionId = positionId;
     }
 
-    public static Result<DepartmentPosition> Create(Guid departmentId, Guid positionId)
+    public static Result<DepartmentPosition, Error> Create(Guid departmentId, Guid positionId)
     {
         if (departmentId == Guid.Empty)
-            return Result<DepartmentPosition>.Failure("DepartmentId не может быть пустым!");
-        
+            return Error.Validation("departmentid.not.empty", "Департамент должен существовать");
+
         if (positionId == Guid.Empty)
-            return Result<DepartmentPosition>.Failure("PositionId не может быть пустым!");
+            return Error.Validation("validationid.not.empty", "Позиция должна существовать");
 
         var departmentPosition = new DepartmentPosition(Guid.NewGuid(), departmentId, positionId);
 
-        return Result<DepartmentPosition>.Success(departmentPosition);
+        return departmentPosition;
     }
 }

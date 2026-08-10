@@ -1,4 +1,7 @@
-﻿namespace DirectoryService.Domain.Departments;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.SharedKernel;
+
+namespace DirectoryService.Domain.Departments;
 
 public class Name
 {
@@ -9,14 +12,14 @@ public class Name
         Value = value;
     }
 
-    public static Result<Name> Create(string value)
+    public static Result<Name, Error> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return Result<Name>.Failure("Название не может быть пустым");
+            return Error.Validation("name.not.space", "Имя не может быть пустым!");
 
         if (value.Length > 200)
-            return Result<Name>.Failure("Название не может быть длиннее 200 символов");
+            return Error.Validation("name.not.length", "Имя не может быть длинее 200 символов");
 
-        return Result<Name>.Success(new Name(value));
+        return new Name(value);
     }
 }

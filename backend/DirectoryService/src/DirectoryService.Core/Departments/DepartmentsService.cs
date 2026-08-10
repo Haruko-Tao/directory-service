@@ -1,9 +1,11 @@
-﻿using DirectoryService.Contracts.Departments;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Departments.Exceptions;
 using DirectoryService.Core.Locations;
 using DirectoryService.Core.Locations.Exceptions;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
+using DirectoryService.SharedKernel;
 using Path = DirectoryService.Domain.Departments.Path;
 
 namespace DirectoryService.Core.Departments;
@@ -19,7 +21,7 @@ public class DepartmentsService
         _departmentsRepository = departmentsRepository;
     }
 
-    public async Task<Guid> Create(CreateDepartmentRequest request, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Failure>> Create(CreateDepartmentRequest request, CancellationToken cancellationToken)
     {
         Path? parentPath = null;
 
@@ -27,53 +29,80 @@ public class DepartmentsService
         {
             var parent = await _departmentsRepository.GetByIdAsync(request.ParentId.Value, cancellationToken);
 
-            if (parent == null)
-                throw new DepartmentNotFoundException(request.ParentId.Value);
+            if (parent.IsFailure)
+                return parent.Error.ToFailure();
 
-            parentPath = parent.Path;
+            parentPath = parent.Value.Path;
         }
 
         foreach (var locationId in request.LocationIds)
         {
             var exist = await _locationsRepository.ExistsAsync(locationId, cancellationToken);
             if (!exist)
-                throw new LocationNotFoundException(locationId);
+                return Error.NotFound("not.exist", "Локация не существует").ToFailure();
         }
 
         var nameResult = Name.Create(request.Name);
+
+        if (nameResult.IsFailure)
+            return nameResult.Error.ToFailure();
+        
         var slugResult = Slug.Create(request.Slug);
 
+        if (slugResult.IsFailure)
+            return slugResult.Error.ToFailure();
+        
         var departmentResult =
-            Department.Create(nameResult.Value!, slugResult.Value!, parentPath, request.ParentId);
+            Department.Create(nameResult.Value, slugResult.Value, parentPath, request.ParentId);
+
+        if (departmentResult.IsFailure)
+            return departmentResult.Error.ToFailure();
 
         foreach (var locationId in request.LocationIds)
         {
-            var departmentLocationResult = DepartmentLocation.Create(departmentResult.Value!.Id, locationId: locationId);
-            await _departmentsRepository.AddDepartmentLocationAsync(departmentLocationResult.Value!, cancellationToken);
+            var departmentLocationResult = DepartmentLocation.Create(departmentResult.Value.Id, locationId: locationId);
+
+            if (departmentLocationResult.IsFailure)
+                return departmentLocationResult.Error.ToFailure();
+            
+            var addResultDepartmentLocationAsync = await _departmentsRepository.AddDepartmentLocationAsync(departmentLocationResult.Value, cancellationToken);
+            if (addResultDepartmentLocationAsync.IsFailure)
+                return addResultDepartmentLocationAsync.Error.ToFailure();
         }
 
-        await _departmentsRepository.AddAsync(departmentResult.Value!, cancellationToken);
+        var addResult = await _departmentsRepository.AddAsync(departmentResult.Value, cancellationToken);
+        if (addResult.IsFailure)
+            return addResult.Error.ToFailure();
 
-        await _departmentsRepository.SaveAsync(cancellationToken);
+        var saveResult = await _departmentsRepository.SaveAsync(cancellationToken);
+        if (saveResult.IsFailure)
+            return saveResult.Error.ToFailure();
 
-        return departmentResult.Value!.Id;
+        return departmentResult.Value.Id;
     }
 
-    public async Task Update(Guid id, UpdateDepartmentRequest request, CancellationToken cancellationToken)
+    public async Task<UnitResult<Failure>> Update(Guid id, UpdateDepartmentRequest request, CancellationToken cancellationToken)
     {
         var department = await _departmentsRepository.GetByIdAsync(id, cancellationToken);
-        
-        if (department is null)
-            throw new DepartmentNotFoundException(id);
+
+        if (department.IsFailure)
+            return department.Error.ToFailure();
 
         var nameResult = Name.Create(request.Name);
 
-        department.Update(nameResult.Value!);
+        if (nameResult.IsFailure)
+            return nameResult.Error.ToFailure();
 
-        await _departmentsRepository.SaveAsync(cancellationToken);
+        department.Value.Update(nameResult.Value);
+
+        var saveResult = await _departmentsRepository.SaveAsync(cancellationToken);
+        if (saveResult.IsFailure)
+            return saveResult.Error.ToFailure();
+
+        return UnitResult.Success<Failure>();
     }
 
-    public async Task AddLocation(Guid departmentId, Guid locationId, CancellationToken cancellationToken)
+    public async Task<UnitResult<Failure>> AddLocation(Guid departmentId, Guid locationId, CancellationToken cancellationToken)
     {
         var existsLocation = await _locationsRepository.ExistsAsync(locationId, cancellationToken);
         var existsDepartment = await _departmentsRepository.ExistsAsync(departmentId, cancellationToken);
@@ -81,36 +110,49 @@ public class DepartmentsService
         if (!existsDepartment || !existsLocation)
         {
             if (!existsDepartment)
-                throw new DepartmentNotFoundException(departmentId);
+                return Error.NotFound("department.not.found", "Депаратамент не существует").ToFailure();
 
             if (!existsLocation)
-                throw new LocationNotFoundException(locationId);
+                return Error.NotFound("location.not.found", "Локация не существует").ToFailure();
         }
 
         var existsDepartmentLocationAsync = await _departmentsRepository.ExistsDepartmentLocationAsync(locationId, departmentId, cancellationToken);
 
         if (existsDepartmentLocationAsync)
-            throw new DepartmentLocationAlReadyExistsException(departmentId, locationId);
+            return Error.Conflict("department.conflict", "Связь отдела и локации уже существует").ToFailure();
 
         var departmentLocation = DepartmentLocation.Create(departmentId, locationId);
 
-        await _departmentsRepository.AddDepartmentLocationAsync(departmentLocation.Value!, cancellationToken);
+        if (departmentLocation.IsFailure)
+            return departmentLocation.Error.ToFailure();
 
-        await _departmentsRepository.SaveAsync(cancellationToken);
+        var addDepartmentLocationResult = await _departmentsRepository.AddDepartmentLocationAsync(departmentLocation.Value, cancellationToken);
+        if (addDepartmentLocationResult.IsFailure)
+            return addDepartmentLocationResult.Error.ToFailure();
+
+        var saveResult = await _departmentsRepository.SaveAsync(cancellationToken);
+        if (saveResult.IsFailure)
+            return saveResult.Error.ToFailure();
+
+        return UnitResult.Success<Failure>();
     }
 
-    public async Task RemoveLocation(Guid locationId, Guid departmentId, CancellationToken cancellationToken)
+    public async Task<UnitResult<Failure>> RemoveLocation(Guid locationId, Guid departmentId, CancellationToken cancellationToken)
     {
         var existsDepartmentLocation =
             await _departmentsRepository.ExistsDepartmentLocationAsync(locationId, departmentId, cancellationToken);
 
         if (!existsDepartmentLocation)
-            throw new DepartmentLocationNotFoundException(departmentId, locationId);
+            return Error.NotFound("department.location.not.found", "Связь отдела и локации не существует").ToFailure();
 
-        await _departmentsRepository.RemoveDepartmentLocationAsync(locationId, departmentId, cancellationToken);
+        var removeResult = await _departmentsRepository.RemoveDepartmentLocationAsync(locationId, departmentId, cancellationToken);
+        if (removeResult.IsFailure)
+            return removeResult.Error.ToFailure();
 
-        await _departmentsRepository.SaveAsync(cancellationToken);
+        var saveResult = await _departmentsRepository.SaveAsync(cancellationToken);
+        if (saveResult.IsFailure)
+            return saveResult.Error.ToFailure();
 
-
+        return UnitResult.Success<Failure>();
     }
 }

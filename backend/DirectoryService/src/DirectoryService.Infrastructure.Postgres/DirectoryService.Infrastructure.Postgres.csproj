@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <NoWarn>CA1861;CA1848;S2139</NoWarn>
+    <NoWarn>CA1861;CA1848;S2139;CA1031</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions" />
     <ProjectReference Include="..\DirectoryService.Core\DirectoryService.Core.csproj" />
     <ProjectReference Include="..\DirectoryService.Domain\DirectoryService.Domain.csproj" />
   </ItemGroup>

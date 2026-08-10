@@ -1,9 +1,10 @@
-﻿using DirectoryService.Contracts.Locations;
-using DirectoryService.Core.Fails;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Locations.Exceptions;
 using DirectoryService.Domain;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
+using DirectoryService.SharedKernel;
 using FluentValidation;
 using ValidationException = FluentValidation.ValidationException;
 
@@ -20,50 +21,72 @@ public class LocationsService
         _validator = validator;
     }
 
-    public async Task<Guid> Create(CreateLocationRequest request, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Failure>> Create(CreateLocationRequest request, CancellationToken cancellationToken)
     {
         //валидация входных данных
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            throw new ValidationFailException(validationResult.Errors.Select(v => v.ErrorMessage));
+            return new Failure(validationResult.Errors.Select(v => Error.Validation("validation.failed", v.ErrorMessage)));
         }
         
         //валидация бизнес логики
         var isNameTaken = await _locationsRepository.IsNameTakenAsync(request.Name, cancellationToken);
         if (isNameTaken)
         {
-            throw new LocationNameDuplicateException(request.Name);
+            return  Error.Validation("is.name.taken", "Имя уже существует").ToFailure();
         }
 
         var nameResult = Name.Create(request.Name);
+
+        if (nameResult.IsFailure)
+            return nameResult.Error.ToFailure();
         
         var addressResult = Address.Create(
             request.Address.City,
             request.Address.Street,
             request.Address.House,
             request.Address.Apartment);
+
+        if (addressResult.IsFailure)
+            return addressResult.Error.ToFailure();
         
-        var locationResult = Location.Create(nameResult.Value!, addressResult.Value!);
+        var locationResult = Location.Create(nameResult.Value, addressResult.Value);
 
-        await _locationsRepository.AddAsync(locationResult.Value!, cancellationToken);
+        if (locationResult.IsFailure)
+            return locationResult.Error.ToFailure();
 
-        return locationResult.Value!.Id;
+        var addResult = await _locationsRepository.AddAsync(locationResult.Value, cancellationToken);
+
+        if (addResult.IsFailure)
+            return addResult.Error.ToFailure();
+
+        return locationResult.Value.Id;
     }
 
-    public async Task Update(Guid id, UpdateLocationRequest request, CancellationToken cancellationToken)
+    public async Task<UnitResult<Failure>> Update(Guid id, UpdateLocationRequest request, CancellationToken cancellationToken)
     {
         var location = await _locationsRepository.GetByIdAsync(id, cancellationToken);
-        
-        if (location is null)
-            throw new LocationNotFoundException(id);
+
+        if (location.IsFailure)
+            return location.Error.ToFailure();
 
         var nameResult = Name.Create(request.Name);
 
+        if (nameResult.IsFailure)
+            return nameResult.Error.ToFailure();
+
         var addressResult = Address.Create(request.Address.City, request.Address.Street, request.Address.House, request.Address.Apartment);
 
-        location.Update(nameResult.Value!, addressResult.Value!);
+        if (addressResult.IsFailure)
+            return addressResult.Error.ToFailure();
+
+        location.Value.Update(nameResult.Value, addressResult.Value);
         
-        await _locationsRepository.SaveAsync(cancellationToken);
+        var saveResult = await _locationsRepository.SaveAsync(cancellationToken);
+        if (saveResult.IsFailure)
+            return saveResult.Error.ToFailure();
+
+        return UnitResult.Success<Failure>();
     }
 }

@@ -1,6 +1,8 @@
-﻿using Dapper;
+﻿using CSharpFunctionalExtensions;
+using Dapper;
 using DirectoryService.Core.Locations;
 using DirectoryService.Domain.Locations;
+using DirectoryService.SharedKernel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -18,7 +20,7 @@ public class DapperLocationsRepository : ILocationsRepository
         _logger = logger;
     }
     
-    public async Task AddAsync(Location location, CancellationToken cancellationToken)
+    public async Task<UnitResult<Error>> AddAsync(Location location, CancellationToken cancellationToken)
     {
         const string sql = """
                            INSERT INTO locations (id, name, city, street, house, apartment, created_at, updated_at)
@@ -50,6 +52,8 @@ public class DapperLocationsRepository : ILocationsRepository
             _logger.LogError(ex, "Не удалось сохранить локацию с id {LocationId}", location.Id);
             throw;
         }
+        
+        return UnitResult.Success<Error>();
         
     }
 
@@ -83,12 +87,12 @@ public class DapperLocationsRepository : ILocationsRepository
         return await connection.ExecuteScalarAsync<bool>(command);
     }
 
-    public Task<Location?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public Task<Result<Location, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task SaveAsync(CancellationToken cancellationToken)
+    public Task<UnitResult<Error>> SaveAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

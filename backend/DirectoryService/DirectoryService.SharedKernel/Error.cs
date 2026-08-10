@@ -3,10 +3,10 @@
 public class Error
 {
     public string Code { get; }
-    public IReadOnlyList<string> Message { get; }
+    public string Message { get; }
     public ErrorType Type { get; }
 
-    private Error(string code, string[] message, ErrorType type)
+    private Error(string code, string message, ErrorType type)
     {
         Code = code;
         Message = message;
@@ -14,21 +14,16 @@ public class Error
     }
 
     public static Error NotFound(string? code, string message) => 
-        new(code ?? "not.found", [message], ErrorType.NOTFOUND);
+        new(code ?? "not.found", message, ErrorType.NOTFOUND);
 
     public static Error Validation(string? code, string message) => 
-        new(code ?? "validation", [message], ErrorType.VALIDATION);
-    
-    public static Error Validation(string? code, string[] messages) => 
-        new(code ?? "validation", messages, ErrorType.VALIDATION);
+        new(code ?? "validation", message, ErrorType.VALIDATION);
 
     public static Error Conflict(string? code, string message) =>
-        new(code ?? "conflict", [message], ErrorType.CONFLICT);
+        new(code ?? "conflict", message, ErrorType.CONFLICT);
 
     public static Error Internal(string? code, string message) =>
-       new(code ?? "internal", [message], ErrorType.INTERNAL);
-
-
+       new(code ?? "internal", message, ErrorType.INTERNAL);
 }
 
 public enum ErrorType

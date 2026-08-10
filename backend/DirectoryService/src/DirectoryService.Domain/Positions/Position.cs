@@ -1,4 +1,6 @@
-﻿using DirectoryService.Domain.Departments;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Domain.Departments;
+using DirectoryService.SharedKernel;
 
 namespace DirectoryService.Domain.Positions;
 
@@ -26,11 +28,11 @@ public class Position
         UpdatedAt = updatedAt;
     }
 
-    public static Result<Position> Create(Name name)
+    public static Result<Position, Error> Create(Name name)
     {
 
         var position = new Position(Guid.NewGuid(), name, DateTime.UtcNow, DateTime.UtcNow);
 
-        return Result<Position>.Success(position);
+        return position;
     }
 }
