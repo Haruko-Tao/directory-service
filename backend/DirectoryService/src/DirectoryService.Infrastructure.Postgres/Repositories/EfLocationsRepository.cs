@@ -1,6 +1,8 @@
-﻿using DirectoryService.Core.Locations;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Core.Locations;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
+using DirectoryService.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -16,17 +18,19 @@ public class EfLocationsRepository : ILocationsRepository
         _dbContext = dbContext;
         _logger = logger;
     }
-    public async Task AddAsync(Location location, CancellationToken cancellationToken)
+    public async Task<UnitResult<Error>> AddAsync(Location location, CancellationToken cancellationToken)
     {
         try
         {
             await _dbContext.Locations.AddAsync(location, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return UnitResult.Success<Error>();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Не удалось сохранить локацию с id {LocationId}", location.Id);
-            throw;
+            return Error.Internal("location.save.failed", "Не удалось сохранить локацию");
         }
     }
 
@@ -44,14 +48,28 @@ public class EfLocationsRepository : ILocationsRepository
             .AnyAsync(l => l.Id == id, cancellationToken);
     }
 
-    public async Task<Location?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Result<Location, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _dbContext.Locations
+        var locationResult = await _dbContext.Locations
             .FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
+
+        if (locationResult is null)
+            return Error.NotFound("location.not.found", $"Локация с {id} не существует");
+
+        return locationResult;
     }
 
-    public async Task SaveAsync(CancellationToken cancellationToken)
+    public async Task<UnitResult<Error>> SaveAsync(CancellationToken cancellationToken)
     {
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return UnitResult.Success<Error>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Не удалось сохранить данные в БД");
+            return Error.Internal("not.save", "Не удалось сохранить данные в БД");
+        }
     }
 }

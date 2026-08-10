@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <NoWarn>CA1716;RCS1194;CA1032</NoWarn>
+        <NoWarn>CA1716;RCS1194;CA1032;CA2225</NoWarn>
     </PropertyGroup>
     
     <PropertyGroup>

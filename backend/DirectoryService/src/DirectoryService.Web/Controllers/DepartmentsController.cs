@@ -1,5 +1,6 @@
 ﻿using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Departments;
+using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
@@ -18,8 +19,12 @@ public class DepartmentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateDepartmentRequest request, CancellationToken cancellationToken)
     {
-        var id = await _departmentsService.Create(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id }, id);
+        var departmentIdResult = await _departmentsService.Create(request, cancellationToken);
+
+        if (departmentIdResult.IsFailure)
+            return departmentIdResult.Error.ToActionResult();
+        
+        return CreatedAtAction(nameof(GetById), new { id = departmentIdResult.Value }, departmentIdResult.Value);
     }
 
     [HttpGet("{id:guid}")]
@@ -38,7 +43,11 @@ public class DepartmentsController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateDepartmentRequest request,
         CancellationToken cancellationToken)
     {
-        await _departmentsService.Update(id, request, cancellationToken);
+        var updateResult = await _departmentsService.Update(id, request, cancellationToken);
+
+        if (updateResult.IsFailure)
+            return updateResult.Error.ToActionResult();
+        
         return NoContent();
     }
 
@@ -51,8 +60,11 @@ public class DepartmentsController : ControllerBase
     [HttpDelete("{departmentId:guid}/locations/{locationId:guid}")]
     public async Task<IActionResult> RemoveLocation(Guid departmentId, Guid locationId, CancellationToken cancellationToken)
     {
-        await _departmentsService.RemoveLocation(locationId, departmentId, cancellationToken);
+        var removeResult = await _departmentsService.RemoveLocation(locationId, departmentId, cancellationToken);
 
+        if (removeResult.IsFailure)
+            return removeResult.Error.ToActionResult();
+        
         return NoContent();
     }
 
@@ -60,7 +72,10 @@ public class DepartmentsController : ControllerBase
     public async Task<IActionResult> AddLocation(Guid departmentId, Guid locationId,
         CancellationToken cancellationToken)
     {
-        await _departmentsService.AddLocation(departmentId, locationId, cancellationToken);
+        var addLocationResult = await _departmentsService.AddLocation(departmentId, locationId, cancellationToken);
+
+        if (addLocationResult.IsFailure)
+            return addLocationResult.Error.ToActionResult();
 
         return NoContent();
     }

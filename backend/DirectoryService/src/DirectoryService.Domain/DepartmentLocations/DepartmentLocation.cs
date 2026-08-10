@@ -1,4 +1,6 @@
-﻿using DirectoryService.Domain.Departments;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Domain.Departments;
+using DirectoryService.SharedKernel;
 
 namespace DirectoryService.Domain.DepartmentLocations;
 
@@ -20,16 +22,16 @@ public class DepartmentLocation
         IsPrimary = isPrimary;
     }
 
-    public static Result<DepartmentLocation> Create(Guid departmentId, Guid locationId, bool isPrimary = false)
+    public static Result<DepartmentLocation, Error> Create(Guid departmentId, Guid locationId, bool isPrimary = false)
     {
         if (departmentId == Guid.Empty)
-            return Result<DepartmentLocation>.Failure("DepartmentId не может быть пустым!");
+            return Error.Validation("departmentid.not.empty", "Департамент должен существовать");
         
         if (locationId == Guid.Empty)
-            return Result<DepartmentLocation>.Failure("LocationId не может быть пустым!");
+            return Error.Validation("locationid.not.empty", "Локация должна существовать");
 
         var departmentLocation = new DepartmentLocation(Guid.NewGuid(), departmentId, locationId, isPrimary);
 
-        return Result<DepartmentLocation>.Success(departmentLocation);
+        return departmentLocation;
     }
 }

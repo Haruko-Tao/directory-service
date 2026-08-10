@@ -1,4 +1,7 @@
-﻿namespace DirectoryService.Domain.Departments;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.SharedKernel;
+
+namespace DirectoryService.Domain.Departments;
 
 public class Path
 {
@@ -9,13 +12,13 @@ public class Path
         Value = value;
     }
 
-    public static Result<Path> Create(string slug, Path? parentPath)
+    public static Result<Path, Error> Create(string slug, Path? parentPath)
     {
         if (string.IsNullOrWhiteSpace(slug))
-            return Result<Path>.Failure("Slug не может бытть пустым при построении пути");
+            return Error.Validation("slug.not.space", "Slug не может быть пустым при построении пути!");
 
         var value = parentPath is null ? slug : $"{parentPath.Value}/{slug}";
 
-        return Result<Path>.Success(new Path(value));
+        return new Path(value);
     }
 }

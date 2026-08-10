@@ -1,4 +1,6 @@
-﻿using DirectoryService.Domain.Departments;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Domain.Departments;
+using DirectoryService.SharedKernel;
 
 namespace DirectoryService.Domain.Locations;
 
@@ -21,28 +23,28 @@ public class Location
         Address = null!;
     }
     
-    private Location(Guid id, Name name, Address address, DateTime creadetAt, DateTime updatedAt)
+    private Location(Guid id, Name name, Address address, DateTime createdAt, DateTime updatedAt)
     {
         Id = id;
         Name = name;
         Address = address;
-        CreatedAt = creadetAt;
+        CreatedAt = createdAt;
         UpdatedAt = updatedAt;
     }
 
-    public static Result<Location> Create(Name name, Address address)
+    public static Result<Location, Error> Create(Name name, Address address)
     {
         var location = new Location(Guid.NewGuid(), name, address, DateTime.UtcNow, DateTime.UtcNow);
 
-        return Result<Location>.Success(location);
+        return location;
     }
 
-    public Result Update(Name name, Address address)
+    public UnitResult<Error> Update(Name name, Address address)
     {
         Name = name;
         Address = address;
         UpdatedAt = DateTime.UtcNow;
 
-        return Result.Success();
+        return UnitResult.Success<Error>();
     }
 }

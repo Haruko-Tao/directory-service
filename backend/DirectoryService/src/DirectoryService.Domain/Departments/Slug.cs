@@ -1,4 +1,6 @@
 ﻿using System.Text.RegularExpressions;
+using CSharpFunctionalExtensions;
+using DirectoryService.SharedKernel;
 
 namespace DirectoryService.Domain.Departments;
 
@@ -11,14 +13,15 @@ public class Slug
         Value = value;
     }
 
-    public static Result<Slug> Create(string value)
+    public static Result<Slug, Error> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return Result<Slug>.Failure("Slug не может быть пустым");
+            return Error.Validation("slug.not.space", "Slug не может быть пустым!");
 
         if (!Regex.IsMatch(value, "^[a-z0-9-]+$", RegexOptions.None, TimeSpan.FromSeconds(1)))
-            return Result<Slug>.Failure("Slug может содержать только строчные латинские буквы, цифры и дефис");
+            return Error.Validation("slug.regex",
+                "Slug может содержать только строчные латинские буквы, цифры и дефис");
 
-        return Result<Slug>.Success(new Slug(value));
+        return new Slug(value);
     }
 }

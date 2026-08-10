@@ -1,4 +1,7 @@
-﻿namespace DirectoryService.Domain.Departments;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.SharedKernel;
+
+namespace DirectoryService.Domain.Departments;
 
 public class Department
 {
@@ -35,24 +38,24 @@ public class Department
         UpdatedAt = updatedAt;
     }
 
-    public static Result<Department> Create(Name name, Slug slug, Path? parentPath, Guid? parentId)
+    public static Result<Department, Error> Create(Name name, Slug slug, Path? parentPath, Guid? parentId)
     {
         var pathResult = Path.Create(slug.Value, parentPath);
 
-        if (!pathResult.IsSuccess)
-            return Result<Department>.Failure(pathResult.Error!);
+        if (pathResult.IsFailure)
+            return pathResult.Error;
 
         var department = new Department(
             Guid.NewGuid(), name, slug, pathResult.Value!, parentId, DateTime.UtcNow, DateTime.UtcNow);
 
-        return Result<Department>.Success(department);
+        return department;
     }
 
-    public Result Update(Name name)
+    public UnitResult<Error> Update(Name name)
     {
         Name = name;
         UpdatedAt = DateTime.UtcNow;
 
-        return Result.Success();
+        return UnitResult.Success<Error>();
     }
 }

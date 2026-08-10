@@ -8,6 +8,7 @@
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Scrutor" />
+    <PackageReference Include="CSharpFunctionalExtensions" />
   </ItemGroup>
 
   <ItemGroup>

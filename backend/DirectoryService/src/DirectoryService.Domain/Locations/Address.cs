@@ -1,4 +1,6 @@
-﻿using DirectoryService.Domain.Departments;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Domain.Departments;
+using DirectoryService.SharedKernel;
 
 namespace DirectoryService.Domain.Locations;
 
@@ -17,17 +19,17 @@ public class Address
         Apartment = apartment;
     }
 
-    public static Result<Address> Create(string city, string street, string house, string? apartment)
+    public static Result<Address, Error> Create(string city, string street, string house, string? apartment)
     {
         if (string.IsNullOrWhiteSpace(city))
-            return Result<Address>.Failure("Город не может быть пустым");
-        
+            return Error.Validation("city.not.empty", "Город не может быть пустым");
+
         if (string.IsNullOrWhiteSpace(street))
-            return Result<Address>.Failure("Улица не может быть пустой");
+            return Error.Validation("street.not.empty", "Улица не может быть пустой");
 
         if (string.IsNullOrWhiteSpace(house))
-            return Result<Address>.Failure("Дом не может быть пустым");
+            return Error.Validation("house.not.empty", "Дом не может быть пустым");
 
-        return Result<Address>.Success(new Address(city, street, house, apartment));
+        return new Address(city, street, house, apartment);
     }
 }

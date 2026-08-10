@@ -4,4 +4,12 @@
     
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DirectoryService.SharedKernel\DirectoryService.SharedKernel.csproj" />
+  </ItemGroup>
+    
 </Project>
