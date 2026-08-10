@@ -1,8 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Core.Departments.Exceptions;
 using DirectoryService.Core.Locations;
-using DirectoryService.Core.Locations.Exceptions;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
 using DirectoryService.SharedKernel;
@@ -107,19 +105,21 @@ public class DepartmentsService
         var existsLocation = await _locationsRepository.ExistsAsync(locationId, cancellationToken);
         var existsDepartment = await _departmentsRepository.ExistsAsync(departmentId, cancellationToken);
 
-        if (!existsDepartment || !existsLocation)
-        {
-            if (!existsDepartment)
-                return Error.NotFound("department.not.found", "Депаратамент не существует").ToFailure();
+        var errors = new List<Error>();
+        
+        if (!existsDepartment)
+                errors.Add(Error.NotFound("department.not.found", "Депаратамент не существует"));
 
-            if (!existsLocation)
-                return Error.NotFound("location.not.found", "Локация не существует").ToFailure();
-        }
+        if (!existsLocation)
+                errors.Add(Error.NotFound("location.not.found", "Локация не существует"));
+
+        if (errors.Count > 0)
+            return new Failure(errors);
 
         var existsDepartmentLocationAsync = await _departmentsRepository.ExistsDepartmentLocationAsync(locationId, departmentId, cancellationToken);
 
         if (existsDepartmentLocationAsync)
-            return Error.Conflict("department.conflict", "Связь отдела и локации уже существует").ToFailure();
+            return Error.Conflict("department.location.already_exists", "Связь отдела и локации уже существует").ToFailure();
 
         var departmentLocation = DepartmentLocation.Create(departmentId, locationId);
 
