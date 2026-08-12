@@ -29,7 +29,7 @@ public class ExceptionMiddleware
         {
             _logger.LogError(ex, ex.Message);
 
-            var failure = Error.Internal(code: default!, "Ошибка сервера").ToFailure();
+            var failure = Error.Internal("internal.server.error", "Ошибка сервера").ToFailure();
 
             await WriteErrorResponseAsync(context, failure);
         }

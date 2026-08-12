@@ -62,6 +62,7 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpDelete("{departmentId:guid}/locations/{locationId:guid}")]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status200OK)]
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
     public async Task<IResult> RemoveLocation(Guid departmentId, Guid locationId, CancellationToken cancellationToken)
