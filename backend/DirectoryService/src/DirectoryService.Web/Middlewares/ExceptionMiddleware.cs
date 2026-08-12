@@ -1,4 +1,6 @@
-﻿using DirectoryService.SharedKernel;
+﻿using DirectoryService.Contracts;
+using DirectoryService.SharedKernel;
+using DirectoryService.Web.Extensions;
 
 namespace DirectoryService.Web.Middlewares;
 
@@ -27,27 +29,25 @@ public class ExceptionMiddleware
         {
             _logger.LogError(ex, ex.Message);
 
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            var failure = Error.Internal("internal.server.error", "Ошибка сервера").ToFailure();
 
-            await context.Response.WriteAsJsonAsync(Error.Internal(code: default,message: "Произошла ошибка на стороне сервера"));
+            await WriteErrorResponseAsync(context, failure);
         }
     }
 
-    public async Task HandleExceptionAsync(HttpContext context, DomainException ex)
+    private async Task HandleExceptionAsync(HttpContext context, DomainException ex)
     {
         _logger.LogError(ex, ex.Message);
 
-        var (statusCode, error) = ex.Error.Type switch
-        {
-            ErrorType.VALIDATION => (StatusCodes.Status400BadRequest, ex.Error),
-            ErrorType.NOTFOUND => (StatusCodes.Status404NotFound, ex.Error),
-            ErrorType.CONFLICT => (StatusCodes.Status409Conflict, ex.Error),
-            ErrorType.INTERNAL => (StatusCodes.Status500InternalServerError, ex.Error),
-            _ => (StatusCodes.Status500InternalServerError, ex.Error)
-        };
+        var failure = ex.Error.ToFailure();
 
-        context.Response.StatusCode = statusCode;
+        await WriteErrorResponseAsync(context, failure);
+    }
 
-        await context.Response.WriteAsJsonAsync(error);
+    private async static Task WriteErrorResponseAsync(HttpContext context, Failure failure)
+    {
+        context.Response.StatusCode = failure.ToStatusCode();
+
+        await context.Response.WriteAsJsonAsync(Envelope.Fail<object>(failure));
     }
 }

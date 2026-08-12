@@ -21,6 +21,7 @@ public class Failure : IEnumerable<Error>
         return GetEnumerator();
     }
 
+    public static Failure None => new Failure([]);
     public static implicit operator Failure(Error[] errors) => new(errors);
     public static implicit operator Failure(Error error) => new([error]);
 }

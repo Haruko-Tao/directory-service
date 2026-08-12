@@ -1,7 +1,10 @@
-﻿using DirectoryService.Contracts.Departments;
+﻿using DirectoryService.Contracts;
+using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Departments;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using IResult = Microsoft.AspNetCore.Http.IResult;
+
 
 namespace DirectoryService.Web.Controllers;
 
@@ -17,14 +20,15 @@ public class DepartmentsController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateDepartmentRequest request, CancellationToken cancellationToken)
+    [ProducesResponseType<Envelope<Guid>>(StatusCodes.Status201Created)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> Create([FromBody] CreateDepartmentRequest request, CancellationToken cancellationToken)
     {
         var departmentIdResult = await _departmentsService.Create(request, cancellationToken);
 
-        if (departmentIdResult.IsFailure)
-            return departmentIdResult.Error.ToActionResult();
-        
-        return CreatedAtAction(nameof(GetById), new { id = departmentIdResult.Value }, departmentIdResult.Value);
+        return departmentIdResult.ToApiResult(StatusCodes.Status201Created);
     }
 
     [HttpGet("{id:guid}")]
@@ -40,15 +44,15 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateDepartmentRequest request,
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    public async Task<IResult> Update(Guid id, [FromBody] UpdateDepartmentRequest request,
         CancellationToken cancellationToken)
     {
         var updateResult = await _departmentsService.Update(id, request, cancellationToken);
-
-        if (updateResult.IsFailure)
-            return updateResult.Error.ToActionResult();
-        
-        return NoContent();
+        return updateResult.ToApiResult();
     }
 
     [HttpDelete("{id:guid}")]
@@ -58,25 +62,27 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpDelete("{departmentId:guid}/locations/{locationId:guid}")]
-    public async Task<IActionResult> RemoveLocation(Guid departmentId, Guid locationId, CancellationToken cancellationToken)
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
+    public async Task<IResult> RemoveLocation(Guid departmentId, Guid locationId, CancellationToken cancellationToken)
     {
         var removeResult = await _departmentsService.RemoveLocation(locationId, departmentId, cancellationToken);
 
-        if (removeResult.IsFailure)
-            return removeResult.Error.ToActionResult();
-        
-        return NoContent();
+        return removeResult.ToApiResult();
     }
 
     [HttpPost("{departmentId:guid}/locations/{locationId:guid}")]
-    public async Task<IActionResult> AddLocation(Guid departmentId, Guid locationId,
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    public async Task<IResult> AddLocation(Guid departmentId, Guid locationId,
         CancellationToken cancellationToken)
     {
         var addLocationResult = await _departmentsService.AddLocation(departmentId, locationId, cancellationToken);
 
-        if (addLocationResult.IsFailure)
-            return addLocationResult.Error.ToActionResult();
-
-        return NoContent();
+        return addLocationResult.ToApiResult();
     }
 }
