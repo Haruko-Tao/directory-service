@@ -1,9 +1,11 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Contracts;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Locations;
 using DirectoryService.SharedKernel;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using IResult = Microsoft.AspNetCore.Http.IResult;
 
 namespace DirectoryService.Web.Controllers;
 
@@ -19,13 +21,14 @@ public class LocationsController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateLocationRequest request, CancellationToken cancellationToken)
+    [ProducesResponseType<Envelope<Guid>>(StatusCodes.Status201Created)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> Create([FromBody] CreateLocationRequest request, CancellationToken cancellationToken)
     {
         var locationIdResult = await _locationsService.Create(request, cancellationToken);
 
-        if (locationIdResult.IsFailure)
-            return locationIdResult.Error.ToActionResult();
-        return CreatedAtAction(nameof(GetById), new { id = locationIdResult.Value }, locationIdResult.Value);
+        return locationIdResult.ToApiResult(StatusCodes.Status201Created);
     }
 
     [HttpGet("{id:guid}")]
@@ -41,14 +44,15 @@ public class LocationsController : ControllerBase
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLocationRequest request, CancellationToken cancellationToken)
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> Update(Guid id, [FromBody] UpdateLocationRequest request, CancellationToken cancellationToken)
     {
         var updateResult = await _locationsService.Update(id, request, cancellationToken);
 
-        if (updateResult.IsFailure)
-            return updateResult.Error.ToActionResult();
-
-        return NoContent();
+        return updateResult.ToApiResult();
     }
 
     [HttpDelete("{id:guid}")]
