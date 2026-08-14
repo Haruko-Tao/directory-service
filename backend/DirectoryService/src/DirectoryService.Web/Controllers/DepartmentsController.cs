@@ -38,9 +38,11 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAll(CancellationToken cancellationToken)
+    public async Task<IResult> GetAll([FromQuery] GetDepartmentsRequest request,CancellationToken cancellationToken)
     {
-        return Ok(Array.Empty<DepartmentResponse>());
+        var getAllResult = await _departmentsService.GetAll(request, cancellationToken);
+
+        return getAllResult.ToApiResult();
     }
 
     [HttpPatch("{id:guid}")]

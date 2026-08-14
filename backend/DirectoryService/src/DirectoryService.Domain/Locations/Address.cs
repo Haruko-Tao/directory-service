@@ -19,16 +19,21 @@ public class Address
         Apartment = apartment;
     }
 
-    public static Result<Address, Error> Create(string city, string street, string house, string? apartment)
+    public static Result<Address, Failure> Create(string city, string street, string house, string? apartment)
     {
+        var errors = new List<Error>();
+
         if (string.IsNullOrWhiteSpace(city))
-            return Error.Validation("city.not.empty", "Город не может быть пустым");
+            errors.Add(Error.Validation("city.not.empty", "Город не может быть пустым"));
 
         if (string.IsNullOrWhiteSpace(street))
-            return Error.Validation("street.not.empty", "Улица не может быть пустой");
+            errors.Add(Error.Validation("street.not.empty", "Улица не может быть пустой"));
 
         if (string.IsNullOrWhiteSpace(house))
-            return Error.Validation("house.not.empty", "Дом не может быть пустым");
+            errors.Add(Error.Validation("house.not.empty", "Дом не может быть пустым"));
+
+        if (errors.Count > 0)
+            return new Failure(errors);
 
         return new Address(city, street, house, apartment);
     }

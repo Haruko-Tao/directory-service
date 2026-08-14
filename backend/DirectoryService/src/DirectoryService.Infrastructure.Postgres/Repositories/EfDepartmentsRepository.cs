@@ -96,4 +96,13 @@ public class EfDepartmentsRepository : IDepartmentsRepository
         return await _dbContext.Departments
             .AnyAsync(d => d.Id == id, cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Department>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Departments
+            .OrderBy(o => o.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
 }

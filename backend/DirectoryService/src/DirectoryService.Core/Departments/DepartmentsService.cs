@@ -1,9 +1,11 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Core.Departments.Extensions;
 using DirectoryService.Core.Locations;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
 using DirectoryService.SharedKernel;
+using FluentValidation;
 using Path = DirectoryService.Domain.Departments.Path;
 
 namespace DirectoryService.Core.Departments;
@@ -12,15 +14,30 @@ public class DepartmentsService
 {
     private readonly ILocationsRepository _locationsRepository;
     private readonly IDepartmentsRepository _departmentsRepository;
+    private readonly IValidator<CreateDepartmentRequest> _validatorCreate;
+    private readonly IValidator<UpdateDepartmentRequest> _validatorUpdate;
+    private readonly IValidator<GetDepartmentsRequest> _validatorGetAll;
 
-    public DepartmentsService(ILocationsRepository locationsRepository, IDepartmentsRepository departmentsRepository)
+    public DepartmentsService(ILocationsRepository locationsRepository,
+        IDepartmentsRepository departmentsRepository,
+        IValidator<CreateDepartmentRequest> validatorCreate,
+        IValidator<UpdateDepartmentRequest> validatorUpdate,
+        IValidator<GetDepartmentsRequest> validatorGetAll)
     {
         _locationsRepository = locationsRepository;
         _departmentsRepository = departmentsRepository;
+        _validatorCreate = validatorCreate;
+        _validatorUpdate = validatorUpdate;
+        _validatorGetAll = validatorGetAll;
     }
 
     public async Task<Result<Guid, Failure>> Create(CreateDepartmentRequest request, CancellationToken cancellationToken)
     {
+        var validationResult = await _validatorCreate.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return new Failure(validationResult.Errors.Select(l => (Error)l.CustomState!));
+        
         Path? parentPath = null;
 
         if (request.ParentId is not null)
@@ -81,6 +98,11 @@ public class DepartmentsService
 
     public async Task<UnitResult<Failure>> Update(Guid id, UpdateDepartmentRequest request, CancellationToken cancellationToken)
     {
+        var validationResult = await _validatorUpdate.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return new Failure(validationResult.Errors.Select(l => (Error)l.CustomState!));
+        
         var department = await _departmentsRepository.GetByIdAsync(id, cancellationToken);
 
         if (department.IsFailure)
@@ -154,5 +176,18 @@ public class DepartmentsService
             return saveResult.Error.ToFailure();
 
         return UnitResult.Success<Failure>();
+    }
+
+    public async Task<Result<IReadOnlyList<DepartmentResponse>, Failure>> GetAll(GetDepartmentsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = await _validatorGetAll.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return new Failure(validationResult.Errors.Select(l => (Error)l.CustomState!));
+
+        var addResult = await _departmentsRepository.GetAllAsync(request.Page, request.PageSize, cancellationToken);
+
+        return addResult.Select(l => l.ToResponse()).ToList();
     }
 }
