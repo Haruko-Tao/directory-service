@@ -41,7 +41,7 @@ public class ExceptionMiddleware
 
     private async Task HandleExceptionAsync(HttpContext context, DomainException ex)
     {
-        _logger.LogError(ex, "Доменное исключение: {ExceptionMessage}",ex.Message);
+        _logger.LogWarning(ex, "Доменное исключение: {ExceptionMessage}",ex.Message);
 
         var failure = ex.Error.ToFailure();
 
