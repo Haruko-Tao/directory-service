@@ -1,6 +1,7 @@
 ﻿using DirectoryService.Contracts;
-using DirectoryService.SharedKernel;
+using DirectoryService.Shared;
 using DirectoryService.Web.Extensions;
+using Serilog.Context;
 
 namespace DirectoryService.Web.Middlewares;
 
@@ -17,27 +18,30 @@ public class ExceptionMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        try
+        using (LogContext.PushProperty("RequestPath", context.Request.Path.ToString()))
         {
-            await _next(context);
-        }
-        catch (DomainException ex)
-        {
-            await HandleExceptionAsync(context, ex);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
+            try
+            {
+                await _next(context);
+            }
+            catch (DomainException ex)
+            {
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Необработанное исключение: {ExceptionMessage}", ex.Message);
 
-            var failure = Error.Internal("internal.server.error", "Ошибка сервера").ToFailure();
+                var failure = Error.Internal("internal.server.error", "Ошибка сервера").ToFailure();
 
-            await WriteErrorResponseAsync(context, failure);
+                await WriteErrorResponseAsync(context, failure);
+            }
         }
     }
 
     private async Task HandleExceptionAsync(HttpContext context, DomainException ex)
     {
-        _logger.LogError(ex, ex.Message);
+        _logger.LogWarning(ex, "Доменное исключение: {ExceptionMessage}",ex.Message);
 
         var failure = ex.Error.ToFailure();
 

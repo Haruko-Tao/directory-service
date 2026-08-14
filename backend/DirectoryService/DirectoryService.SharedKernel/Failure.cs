@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace DirectoryService.SharedKernel;
+namespace DirectoryService.Shared;
 
 public class Failure : IEnumerable<Error>
 {

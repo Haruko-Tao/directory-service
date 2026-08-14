@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <NoWarn>S112, CA2201, CA1711, S2166,RCS1194, CA1032</NoWarn>
+    <NoWarn>CA1848,CA1873, S112, CA2201, CA1711, S2166,RCS1194, CA1032</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,6 +9,8 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Scrutor" />
     <PackageReference Include="CSharpFunctionalExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Serilog" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 ﻿using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Extensions;
-using DirectoryService.SharedKernel;
+using DirectoryService.Shared;
 using FluentValidation;
 
 namespace DirectoryService.Core.Departments;

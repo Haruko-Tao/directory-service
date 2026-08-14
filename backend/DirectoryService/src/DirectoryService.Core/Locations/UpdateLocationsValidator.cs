@@ -2,7 +2,7 @@
 using DirectoryService.Core.Extensions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
-using DirectoryService.SharedKernel;
+using DirectoryService.Shared;
 using FluentValidation;
 
 namespace DirectoryService.Core.Locations;

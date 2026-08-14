@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using DirectoryService.SharedKernel;
+using DirectoryService.Shared;
 using FluentValidation;
 using FluentValidation.Results;
 

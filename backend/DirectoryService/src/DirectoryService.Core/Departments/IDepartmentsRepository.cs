@@ -2,7 +2,7 @@
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
-using DirectoryService.SharedKernel;
+using DirectoryService.Shared;
 
 namespace DirectoryService.Core.Departments;
 

@@ -5,9 +5,10 @@ using DirectoryService.Core.Locations.Extensions;
 using DirectoryService.Domain;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
-using DirectoryService.SharedKernel;
+using DirectoryService.Shared;
 using FluentValidation;
 using ValidationException = FluentValidation.ValidationException;
+using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Core.Locations;
 
@@ -17,16 +18,19 @@ public class LocationsService
     private readonly IValidator<CreateLocationRequest> _validatorCreate;
     private readonly IValidator<GetLocationsRequest> _validatorGetAll;
     private readonly IValidator<UpdateLocationRequest> _validatorUpdate;
+    private readonly ILogger<LocationsService> _logger;
 
     public LocationsService(ILocationsRepository locationsRepository,
         IValidator<CreateLocationRequest> validatorCreate,
         IValidator<GetLocationsRequest> validatorGetAll,
-        IValidator<UpdateLocationRequest> validatorUpdate)
+        IValidator<UpdateLocationRequest> validatorUpdate,
+        ILogger<LocationsService> logger)
     {
         _locationsRepository = locationsRepository;
         _validatorCreate = validatorCreate;
         _validatorGetAll = validatorGetAll;
         _validatorUpdate = validatorUpdate;
+        _logger = logger;
     }
 
     public async Task<Result<Guid, Failure>> Create(CreateLocationRequest request, CancellationToken cancellationToken)
@@ -70,6 +74,8 @@ public class LocationsService
         if (addResult.IsFailure)
             return addResult.Error.ToFailure();
 
+        _logger.LogInformation("Локация {LocationId} создана", locationResult.Value.Id);
+        
         return locationResult.Value.Id;
     }
 
@@ -83,7 +89,10 @@ public class LocationsService
         var location = await _locationsRepository.GetByIdAsync(id, cancellationToken);
 
         if (location.IsFailure)
+        {
+            _logger.LogWarning("Попытка поиска локации {LocationId} неуспешна", id);
             return location.Error.ToFailure();
+        }
 
         var nameResult = Name.Create(request.Name);
 
@@ -100,6 +109,8 @@ public class LocationsService
         var saveResult = await _locationsRepository.SaveAsync(cancellationToken);
         if (saveResult.IsFailure)
             return saveResult.Error.ToFailure();
+        
+        _logger.LogInformation("Локация с {LocationId} успешно обновлена", id);
 
         return UnitResult.Success<Failure>();
     }
