@@ -2,7 +2,7 @@
 using Dapper;
 using DirectoryService.Core.Locations;
 using DirectoryService.Domain.Locations;
-using DirectoryService.SharedKernel;
+using DirectoryService.Shared;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Npgsql;

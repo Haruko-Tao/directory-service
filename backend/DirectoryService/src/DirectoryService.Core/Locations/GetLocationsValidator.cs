@@ -1,6 +1,6 @@
 ﻿using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Extensions;
-using DirectoryService.SharedKernel;
+using DirectoryService.Shared;
 using FluentValidation;
 
 namespace DirectoryService.Core.Locations;

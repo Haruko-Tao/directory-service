@@ -2,7 +2,6 @@
 using DirectoryService.Contracts;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Locations;
-using DirectoryService.SharedKernel;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using IResult = Microsoft.AspNetCore.Http.IResult;

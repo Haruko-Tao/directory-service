@@ -1,41 +1,72 @@
+using System.Globalization;
 using System.Text.Json.Serialization;
 using DirectoryService.Core;
 using DirectoryService.Infrastructure.Postgres;
+using DirectoryService.Web;
 using DirectoryService.Web.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
+    .CreateBootstrapLogger();
 
-builder.Services.AddOpenApi();
-
-builder.Services.AddControllers();
-
-builder.Services.AddHealthChecks();
-
-builder.Services.AddInfrastructure(builder.Configuration);
-
-builder.Services.AddCore();
-
-builder.Services.ConfigureHttpJsonOptions(options =>
+try
 {
-    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-});
+    Log.Information("Запуск DirectoryService.Web");
+    
+    var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+    builder.Services.AddSerilog((services, loggerConfiguration) => loggerConfiguration
+        .ReadFrom.Configuration(builder.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .Enrich.WithMachineName()
+        .Enrich.WithEnvironmentName());
 
-app.UseMiddleware<ExceptionMiddleware>();
+    builder.Services.AddOpenApi();
 
-app.MapGet("/", () => "DirectoryService is running!");
+    builder.Services.AddControllers();
 
-app.MapHealthChecks("/health");
+    builder.Services.AddHealthChecks();
 
-app.MapControllers();
+    builder.Services.AddInfrastructure(builder.Configuration);
 
-if (!app.Environment.IsProduction())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+    builder.Services.AddCore();
+
+    builder.Services.AddWebErrorHandling();
+
+    builder.Services.ConfigureHttpJsonOptions(options =>
+    {
+        options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
+    var app = builder.Build();
+
+    app.UseSerilogRequestLogging();
+
+    app.UseMiddleware<ExceptionMiddleware>();
+
+    app.MapGet("/", () => "DirectoryService is running!");
+
+    app.MapHealthChecks("/health");
+
+    app.MapControllers();
+
+    if (!app.Environment.IsProduction())
+    {
+        app.MapOpenApi();
+        app.MapScalarApiReference();
+    }
+
+    await app.RunAsync();
 }
-
-await app.RunAsync();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "DirectoryService.Web неожиданно завершился");
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
+}

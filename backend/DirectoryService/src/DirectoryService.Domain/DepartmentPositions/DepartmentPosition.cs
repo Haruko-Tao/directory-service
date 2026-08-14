@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments;
-using DirectoryService.SharedKernel;
+using DirectoryService.Shared;
 
 namespace DirectoryService.Domain.DepartmentPositions;
 

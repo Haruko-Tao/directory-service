@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.SharedKernel;
+﻿namespace DirectoryService.Shared;
 
 public class DomainException : Exception
 {

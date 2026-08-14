@@ -1,4 +1,4 @@
-﻿using DirectoryService.SharedKernel;
+﻿using DirectoryService.Shared;
 
 namespace DirectoryService.Contracts;
 

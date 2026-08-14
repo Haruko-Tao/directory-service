@@ -2,7 +2,7 @@
 using DirectoryService.Core.Departments;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
-using DirectoryService.SharedKernel;
+using DirectoryService.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
