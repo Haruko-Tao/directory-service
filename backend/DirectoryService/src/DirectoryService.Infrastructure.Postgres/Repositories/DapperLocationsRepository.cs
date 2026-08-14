@@ -96,4 +96,9 @@ public class DapperLocationsRepository : ILocationsRepository
     {
         throw new NotImplementedException();
     }
+
+    public Task<IReadOnlyList<Location>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }

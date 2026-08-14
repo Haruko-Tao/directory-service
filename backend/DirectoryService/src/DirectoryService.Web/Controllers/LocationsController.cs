@@ -38,9 +38,11 @@ public class LocationsController : ControllerBase
     }
 
     [HttpGet]
-    public  IActionResult GetAll(CancellationToken cancellationToken)
+    public  async Task<IResult> GetAll([FromQuery] GetLocationsRequest request,CancellationToken cancellationToken)
     {
-        return Ok(Array.Empty<LocationResponse>());
+        var getAllResult = await _locationsService.GetAll(request, cancellationToken);
+
+        return getAllResult.ToApiResult();
     }
 
     [HttpPatch("{id:guid}")]

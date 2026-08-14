@@ -72,4 +72,13 @@ public class EfLocationsRepository : ILocationsRepository
             return Error.Internal("not.save", "Не удалось сохранить данные в БД");
         }
     }
+
+    public async Task<IReadOnlyList<Location>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Locations
+            .OrderBy(l => l.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken: cancellationToken);
+    }
 }

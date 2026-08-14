@@ -15,4 +15,6 @@ public interface ILocationsRepository
     Task<Result<Location, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task<UnitResult<Error>> SaveAsync(CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Location>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken);
 }

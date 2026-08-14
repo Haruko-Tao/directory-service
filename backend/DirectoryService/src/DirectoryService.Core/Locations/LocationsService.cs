@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Locations.Exceptions;
+using DirectoryService.Core.Locations.Extensions;
 using DirectoryService.Domain;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
@@ -13,21 +14,29 @@ namespace DirectoryService.Core.Locations;
 public class LocationsService
 {
     private readonly ILocationsRepository _locationsRepository;
-    private readonly IValidator<CreateLocationRequest> _validator;
+    private readonly IValidator<CreateLocationRequest> _validatorCreate;
+    private readonly IValidator<GetLocationsRequest> _validatorGetAll;
+    private readonly IValidator<UpdateLocationRequest> _validatorUpdate;
 
-    public LocationsService(ILocationsRepository locationsRepository, IValidator<CreateLocationRequest> validator)
+    public LocationsService(ILocationsRepository locationsRepository,
+        IValidator<CreateLocationRequest> validatorCreate,
+        IValidator<GetLocationsRequest> validatorGetAll,
+        IValidator<UpdateLocationRequest> validatorUpdate)
     {
         _locationsRepository = locationsRepository;
-        _validator = validator;
+        _validatorCreate = validatorCreate;
+        _validatorGetAll = validatorGetAll;
+        _validatorUpdate = validatorUpdate;
     }
 
     public async Task<Result<Guid, Failure>> Create(CreateLocationRequest request, CancellationToken cancellationToken)
     {
         //валидация входных данных
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        var validationResult = await _validatorCreate.ValidateAsync(request, cancellationToken);
+        
         if (!validationResult.IsValid)
         {
-            return new Failure(validationResult.Errors.Select(v => Error.Validation("validation.failed", v.ErrorMessage)));
+            return new Failure(validationResult.Errors.Select(v => (Error)v.CustomState!));
         }
         
         //валидация бизнес логики
@@ -49,7 +58,7 @@ public class LocationsService
             request.Address.Apartment);
 
         if (addressResult.IsFailure)
-            return addressResult.Error.ToFailure();
+            return addressResult.Error;
         
         var locationResult = Location.Create(nameResult.Value, addressResult.Value);
 
@@ -66,6 +75,11 @@ public class LocationsService
 
     public async Task<UnitResult<Failure>> Update(Guid id, UpdateLocationRequest request, CancellationToken cancellationToken)
     {
+        var validationResult = await _validatorUpdate.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return new Failure(validationResult.Errors.Select(l => (Error)l.CustomState!));
+        
         var location = await _locationsRepository.GetByIdAsync(id, cancellationToken);
 
         if (location.IsFailure)
@@ -79,7 +93,7 @@ public class LocationsService
         var addressResult = Address.Create(request.Address.City, request.Address.Street, request.Address.House, request.Address.Apartment);
 
         if (addressResult.IsFailure)
-            return addressResult.Error.ToFailure();
+            return addressResult.Error;
 
         location.Value.Update(nameResult.Value, addressResult.Value);
         
@@ -88,5 +102,18 @@ public class LocationsService
             return saveResult.Error.ToFailure();
 
         return UnitResult.Success<Failure>();
+    }
+
+    public async Task<Result<IReadOnlyList<LocationResponse>, Failure>> GetAll(GetLocationsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = await _validatorGetAll.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return new Failure(validationResult.Errors.Select(l => (Error)l.CustomState!));
+
+        var addResult = await _locationsRepository.GetAllAsync(request.Page, request.PageSize, cancellationToken);
+
+        return addResult.Select(l => l.ToResponse()).ToList();
     }
 }
