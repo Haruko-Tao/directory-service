@@ -15,6 +15,8 @@ public class UpdateLocationsValidator : AbstractValidator<UpdateLocationRequest>
             .MustBeValueObject(Name.Create);
 
         RuleFor(u => u.Address)
-            .MustBeValueObject(x => Address.Create(x.City, x.Street, x.House, x.Apartment));
+            .MustBeValueObject(x => x is null 
+                ? Error.Validation("address.is.null", "Адрес не может быть пустым").ToFailure()
+                : Address.Create(x.City, x.Street, x.House, x.Apartment));
     }
 }
