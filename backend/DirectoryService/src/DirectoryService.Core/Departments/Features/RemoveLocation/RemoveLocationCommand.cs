@@ -2,4 +2,4 @@
 
 namespace DirectoryService.Core.Departments.Features.RemoveLocation;
 
-public record RemoveLocationCommand(Guid LocationId, Guid DepartmentId) : ICommand;
+public record RemoveLocationCommand(Guid DepartmentId, Guid LocationId) : ICommand;
