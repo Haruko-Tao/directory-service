@@ -4,8 +4,8 @@ using DirectoryService.Shared;
 namespace DirectoryService.Core.Abstractions;
 
 #pragma warning disable CA1040
-public interface ICommand;
-public interface IQuery;
+public interface ICommand {};
+public interface IQuery {};
 #pragma warning disable CA1040
 public interface IQueryHandler<TQuery, TResponse> where TQuery : IQuery
 {
