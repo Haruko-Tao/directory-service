@@ -65,7 +65,17 @@ public class CreateDepartmentHandler : ICommandHandler<CreateDepartmentCommand, 
         var slugResult = Slug.Create(command.Slug);
 
         if (slugResult.IsFailure)
+        {
             return slugResult.Error.ToFailure();
+        }
+
+        var isSlugTaken = await _departmentsRepository.IsSlugTakenAsync(slugResult.Value.Value, command.ParentId, cancellationToken);
+
+        if (isSlugTaken)
+        {
+            _logger.LogWarning("Slug который вы выбрали - {ParentId}/{Slug} уже занят", command.ParentId,command.Slug);
+            return Error.Conflict("is.slug.taken", $"Такой {command.Slug} уже занят").ToFailure();
+        }
         
         var departmentResult =
             Department.Create(nameResult.Value, slugResult.Value, parentPath, command.ParentId);
