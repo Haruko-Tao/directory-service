@@ -105,4 +105,11 @@ public class EfDepartmentsRepository : IDepartmentsRepository
             .Take(pageSize)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<bool> IsSlugTakenAsync(string slug, Guid? parentId, CancellationToken cancellationToken)
+    {
+        var slugResult = Slug.Create(slug);
+
+        return await _dbContext.Departments.AnyAsync(d => d.Slug == slugResult.Value! && d.ParentId == parentId, cancellationToken);
+    }
 }

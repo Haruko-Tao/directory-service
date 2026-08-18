@@ -3,9 +3,9 @@ using DirectoryService.Core.Extensions;
 using DirectoryService.Shared;
 using FluentValidation;
 
-namespace DirectoryService.Core.Locations;
+namespace DirectoryService.Core.Locations.Features.GetLocations;
 
-public class GetLocationsValidator : AbstractValidator<GetLocationsRequest>
+public class GetLocationsValidator : AbstractValidator<GetLocationsQuery>
 {
     public GetLocationsValidator()
     {

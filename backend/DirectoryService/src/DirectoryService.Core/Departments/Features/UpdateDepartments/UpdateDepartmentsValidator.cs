@@ -3,9 +3,9 @@ using DirectoryService.Core.Extensions;
 using DirectoryService.Domain.Departments;
 using FluentValidation;
 
-namespace DirectoryService.Core.Departments;
+namespace DirectoryService.Core.Departments.Features.UpdateDepartments;
 
-public class UpdateDepartmentsValidator : AbstractValidator<UpdateDepartmentRequest>
+public class UpdateDepartmentsValidator : AbstractValidator<UpdateDepartmentCommand>
 {
     public UpdateDepartmentsValidator()
     {

@@ -22,4 +22,5 @@ public interface IDepartmentsRepository
     Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Department>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken);
+    Task<bool> IsSlugTakenAsync(string slug, Guid? parentId, CancellationToken cancellationToken);
 }
