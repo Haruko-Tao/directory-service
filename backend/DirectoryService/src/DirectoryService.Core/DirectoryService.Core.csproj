@@ -10,7 +10,6 @@
     <PackageReference Include="Scrutor" />
     <PackageReference Include="CSharpFunctionalExtensions" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-    <PackageReference Include="Serilog" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,13 @@
 ﻿using DirectoryService.Contracts;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Departments;
+using DirectoryService.Core.Departments.Features.AddLocation;
+using DirectoryService.Core.Departments.Features.CreateDepartment;
+using DirectoryService.Core.Departments.Features.GetDepartments;
+using DirectoryService.Core.Departments.Features.RemoveLocation;
+using DirectoryService.Core.Departments.Features.UpdateDepartments;
+using DirectoryService.Core.Locations.Features.UpdateLocations;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using IResult = Microsoft.AspNetCore.Http.IResult;
@@ -12,21 +19,19 @@ namespace DirectoryService.Web.Controllers;
 [Route("departments")]
 public class DepartmentsController : ControllerBase
 {
-    private readonly DepartmentsService _departmentsService;
-    
-    public DepartmentsController(DepartmentsService departmentsService)
-    {
-        _departmentsService = departmentsService;
-    }
-    
     [HttpPost]
     [ProducesResponseType<Envelope<Guid>>(StatusCodes.Status201Created)]
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
-    public async Task<IResult> Create([FromBody] CreateDepartmentRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Create([FromBody] CreateDepartmentRequest request,
+        [FromServices] ICommandHandler<CreateDepartmentCommand, Guid> handler,
+        CancellationToken cancellationToken)
     {
-        var departmentIdResult = await _departmentsService.Create(request, cancellationToken);
+        var command = new CreateDepartmentCommand(request.Name, request.Slug, request.ParentId,
+            request.LocationIds);
+        
+        var departmentIdResult = await handler.Handle(command, cancellationToken);
 
         return departmentIdResult.ToApiResult(StatusCodes.Status201Created);
     }
@@ -38,9 +43,13 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IResult> GetAll([FromQuery] GetDepartmentsRequest request,CancellationToken cancellationToken)
+    public async Task<IResult> GetAll([FromQuery] GetDepartmentsRequest request,
+        [FromServices] IQueryHandler<GetDepartmentsQuery, IReadOnlyCollection<DepartmentResponse>> query,
+        CancellationToken cancellationToken)
     {
-        var getAllResult = await _departmentsService.GetAll(request, cancellationToken);
+        var command = new GetDepartmentsQuery(request.Page, request.PageSize);
+        
+        var getAllResult = await query.Handle(command, cancellationToken);
 
         return getAllResult.ToApiResult();
     }
@@ -51,9 +60,12 @@ public class DepartmentsController : ControllerBase
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
     public async Task<IResult> Update(Guid id, [FromBody] UpdateDepartmentRequest request,
+        [FromServices] ICommandHandler<UpdateDepartmentCommand> handler,
         CancellationToken cancellationToken)
     {
-        var updateResult = await _departmentsService.Update(id, request, cancellationToken);
+        var command = new UpdateDepartmentCommand(id ,request.Name);
+        
+        var updateResult = await handler.Handle(command, cancellationToken);
         return updateResult.ToApiResult();
     }
 
@@ -67,9 +79,14 @@ public class DepartmentsController : ControllerBase
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status200OK)]
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
-    public async Task<IResult> RemoveLocation(Guid departmentId, Guid locationId, CancellationToken cancellationToken)
+    public async Task<IResult> RemoveLocation([FromServices] ICommandHandler<RemoveLocationCommand> handler,
+        Guid departmentId,
+        Guid locationId,
+        CancellationToken cancellationToken)
     {
-        var removeResult = await _departmentsService.RemoveLocation(locationId, departmentId, cancellationToken);
+        var command = new RemoveLocationCommand(departmentId, locationId);
+        
+        var removeResult = await handler.Handle(command, cancellationToken);
 
         return removeResult.ToApiResult();
     }
@@ -80,10 +97,14 @@ public class DepartmentsController : ControllerBase
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
-    public async Task<IResult> AddLocation(Guid departmentId, Guid locationId,
+    public async Task<IResult> AddLocation([FromServices] ICommandHandler<AddLocationCommand> handler,
+        Guid departmentId,
+        Guid locationId,
         CancellationToken cancellationToken)
     {
-        var addLocationResult = await _departmentsService.AddLocation(departmentId, locationId, cancellationToken);
+        var command = new AddLocationCommand(departmentId, locationId);
+        
+        var addLocationResult = await handler.Handle(command, cancellationToken);
 
         return addLocationResult.ToApiResult();
     }

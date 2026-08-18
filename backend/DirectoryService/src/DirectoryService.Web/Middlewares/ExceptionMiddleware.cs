@@ -48,7 +48,7 @@ public class ExceptionMiddleware
         await WriteErrorResponseAsync(context, failure);
     }
 
-    private async static Task WriteErrorResponseAsync(HttpContext context, Failure failure)
+    private static async Task WriteErrorResponseAsync(HttpContext context, Failure failure)
     {
         context.Response.StatusCode = failure.ToStatusCode();
 

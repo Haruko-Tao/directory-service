@@ -3,9 +3,9 @@ using DirectoryService.Core.Extensions;
 using DirectoryService.Shared;
 using FluentValidation;
 
-namespace DirectoryService.Core.Departments;
+namespace DirectoryService.Core.Departments.Features.GetDepartments;
 
-public class GetDepartmentsValidator : AbstractValidator<GetDepartmentsRequest>
+public class GetDepartmentsValidator : AbstractValidator<GetDepartmentsQuery>
 {
     public GetDepartmentsValidator()
     {
