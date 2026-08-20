@@ -1,5 +1,7 @@
-﻿using DirectoryService.Core.Departments;
+﻿using DirectoryService.Core.Database;
+using DirectoryService.Core.Departments;
 using DirectoryService.Core.Locations;
+using DirectoryService.Infrastructure.Postgres.Database;
 using DirectoryService.Infrastructure.Postgres.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +31,8 @@ public static class InfrasturctureDependencyInjection
             services.AddScoped<ILocationsRepository, EfLocationsRepository>();
             
             services.AddScoped<IDepartmentsRepository, EfDepartmentsRepository>();
+
+            services.AddScoped<ITransactionManager, TransactionManager>();
         }
         
         

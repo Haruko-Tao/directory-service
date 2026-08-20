@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Dapper;
 using DirectoryService.Core.Locations;
+using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Shared;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +21,7 @@ public class DapperLocationsRepository : ILocationsRepository
         _logger = logger;
     }
     
-    public async Task<UnitResult<Error>> AddAsync(Location location, CancellationToken cancellationToken)
+    public async Task AddAsync(Location location, CancellationToken cancellationToken)
     {
         const string sql = """
                            INSERT INTO locations (id, name, city, street, house, apartment, created_at, updated_at)
@@ -53,8 +54,11 @@ public class DapperLocationsRepository : ILocationsRepository
             throw;
         }
         
-        return UnitResult.Success<Error>();
-        
+    }
+
+    public Task<bool> IsNameTakenAsync(Name name, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<bool> IsNameTakenAsync(string name, CancellationToken cancellationToken)
@@ -88,11 +92,6 @@ public class DapperLocationsRepository : ILocationsRepository
     }
 
     public Task<Result<Location, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<UnitResult<Error>> SaveAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

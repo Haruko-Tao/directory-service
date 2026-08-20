@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Core.Abstractions;
+using DirectoryService.Core.Database;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Shared;
@@ -13,14 +14,17 @@ public sealed class CreateLocationHandler : ICommandHandler<CreateLocationComman
     private readonly ILocationsRepository _locationsRepository;
     private readonly ILogger<CreateLocationHandler> _logger;
     private readonly IValidator<CreateLocationCommand> _validator;
+    private readonly ITransactionManager _transactionManager;
     
     public CreateLocationHandler(ILocationsRepository locationsRepository,
         ILogger<CreateLocationHandler> logger,
-        IValidator<CreateLocationCommand> validator)
+        IValidator<CreateLocationCommand> validator,
+        ITransactionManager transactionManager)
     {
         _locationsRepository = locationsRepository;
         _logger = logger;
         _validator = validator;
+        _transactionManager = transactionManager;
     }
     
     public async Task<Result<Guid, Failure>> Handle(CreateLocationCommand command, CancellationToken cancellationToken)
@@ -34,17 +38,17 @@ public sealed class CreateLocationHandler : ICommandHandler<CreateLocationComman
         }
         
         //валидация бизнес логики
-        var isNameTaken = await _locationsRepository.IsNameTakenAsync(command.Name, cancellationToken);
-        if (isNameTaken)
-        {
-            _logger.LogWarning("Имя локации {LocationName}уже существует", command.Name);
-            return  Error.Conflict("is.name.taken", "Имя уже существует").ToFailure();
-        }
-
         var nameResult = Name.Create(command.Name);
-
+        
         if (nameResult.IsFailure)
             return nameResult.Error.ToFailure();
+        
+        var isNameTaken = await _locationsRepository.IsNameTakenAsync(nameResult.Value, cancellationToken);
+        if (isNameTaken)
+        {
+            _logger.LogWarning("Имя локации {LocationName} уже существует", command.Name);
+            return  Error.Conflict("is.name.taken", "Имя уже существует").ToFailure();
+        }
         
         var addressResult = Address.Create(
             command.AddressDto.City,
@@ -60,10 +64,12 @@ public sealed class CreateLocationHandler : ICommandHandler<CreateLocationComman
         if (locationResult.IsFailure)
             return locationResult.Error.ToFailure();
 
-        var addResult = await _locationsRepository.AddAsync(locationResult.Value, cancellationToken);
+        await _locationsRepository.AddAsync(locationResult.Value, cancellationToken);
 
-        if (addResult.IsFailure)
-            return addResult.Error.ToFailure();
+        var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
+        
+        if (saveResult.IsFailure)
+            return saveResult.Error.ToFailure();
 
         _logger.LogInformation("Локация {LocationId} создана", locationResult.Value.Id);
         

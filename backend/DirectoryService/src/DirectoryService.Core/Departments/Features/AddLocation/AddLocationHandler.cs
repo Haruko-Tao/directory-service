@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Core.Abstractions;
+using DirectoryService.Core.Database;
 using DirectoryService.Core.Locations;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Shared;
@@ -12,14 +13,17 @@ public sealed class AddLocationHandler : ICommandHandler<AddLocationCommand>
     private readonly ILocationsRepository _locationsRepository;
     private readonly IDepartmentsRepository _departmentsRepository;
     private readonly ILogger<AddLocationHandler> _logger;
+    private readonly ITransactionManager _transactionManager;
 
     public AddLocationHandler(ILocationsRepository locationsRepository,
         IDepartmentsRepository departmentsRepository,
-        ILogger<AddLocationHandler> logger)
+        ILogger<AddLocationHandler> logger,
+        ITransactionManager transactionManager)
     {
         _locationsRepository = locationsRepository;
         _departmentsRepository = departmentsRepository;
         _logger = logger;
+        _transactionManager = transactionManager;
     }
 
     public async Task<UnitResult<Failure>> Handle(AddLocationCommand command, CancellationToken cancellationToken)
@@ -36,22 +40,27 @@ public sealed class AddLocationHandler : ICommandHandler<AddLocationCommand>
             var errors = new List<Error>();
 
             if (!existsDepartment)
-                errors.Add(Error.NotFound("department.not.found", "Депаратамент не существует"));
+            {
+                _logger.LogWarning("Отдел не найден при привязке к Локации");
+                errors.Add(Error.NotFound("department.not.found", "Отдел не существует"));
+            }
 
             if (!existsLocation)
+            {
+                _logger.LogWarning("Локация не найдена при привязке к отделу");
                 errors.Add(Error.NotFound("location.not.found", "Локация не существует"));
+            }
 
             if (errors.Count > 0)
             {
-                _logger.LogWarning("Не удалось привязать локацию: department и location не найдены");
                 return new Failure(errors);
             }
 
-            var existsDepartmentLocationAsync =
+            var existsLink =
                 await _departmentsRepository.ExistsDepartmentLocationAsync(command.LocationId, command.DepartmentId,
                     cancellationToken);
 
-            if (existsDepartmentLocationAsync)
+            if (existsLink)
             {
                 _logger.LogWarning("Попытка повторной привязки уже существующей связи department-location");
                 return Error.Conflict("department.location.already_exists", "Связь отдела и локации уже существует")
@@ -62,13 +71,11 @@ public sealed class AddLocationHandler : ICommandHandler<AddLocationCommand>
 
             if (departmentLocation.IsFailure)
                 return departmentLocation.Error.ToFailure();
+            
+            await _departmentsRepository.AddDepartmentLocationAsync(departmentLocation.Value, cancellationToken);
 
-            var addDepartmentLocationResult =
-                await _departmentsRepository.AddDepartmentLocationAsync(departmentLocation.Value, cancellationToken);
-            if (addDepartmentLocationResult.IsFailure)
-                return addDepartmentLocationResult.Error.ToFailure();
-
-            var saveResult = await _departmentsRepository.SaveAsync(cancellationToken);
+            var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
+            
             if (saveResult.IsFailure)
                 return saveResult.Error.ToFailure();
 

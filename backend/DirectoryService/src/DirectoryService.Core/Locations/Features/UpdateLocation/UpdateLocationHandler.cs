@@ -1,26 +1,31 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Core.Abstractions;
+using DirectoryService.Core.Database;
+using DirectoryService.Core.Locations.Features.UpdateLocations;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Shared;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Core.Locations.Features.UpdateLocations;
+namespace DirectoryService.Core.Locations.Features.UpdateLocation;
 
 public sealed class UpdateLocationHandler : ICommandHandler<UpdateLocationCommand>
 {
     private readonly ILocationsRepository _locationsRepository;
     private readonly IValidator<UpdateLocationCommand> _validator;
     private readonly ILogger<UpdateLocationHandler> _logger;
+    private readonly ITransactionManager _transactionManager;
     
     public UpdateLocationHandler(ILocationsRepository locationsRepository,
         IValidator<UpdateLocationCommand> validator,
-        ILogger<UpdateLocationHandler> logger)
+        ILogger<UpdateLocationHandler> logger,
+        ITransactionManager transactionManager)
     {
         _locationsRepository = locationsRepository;
         _validator = validator;
         _logger = logger;
+        _transactionManager = transactionManager;
     }
     
     public async Task<UnitResult<Failure>> Handle(UpdateLocationCommand command, CancellationToken cancellationToken)
@@ -34,7 +39,7 @@ public sealed class UpdateLocationHandler : ICommandHandler<UpdateLocationComman
 
         if (locationResult.IsFailure)
         {
-            _logger.LogWarning("Попытка поиска локации {LocationId} неуспешна", command.LocationId);
+            _logger.LogWarning("Локация {LocationId} не найдена", command.LocationId);
             return locationResult.Error.ToFailure();
         }
 
@@ -50,7 +55,8 @@ public sealed class UpdateLocationHandler : ICommandHandler<UpdateLocationComman
 
         locationResult.Value.Update(nameResult.Value, addressResult.Value);
         
-        var saveResult = await _locationsRepository.SaveAsync(cancellationToken);
+        var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
+        
         if (saveResult.IsFailure)
             return saveResult.Error.ToFailure();
         
