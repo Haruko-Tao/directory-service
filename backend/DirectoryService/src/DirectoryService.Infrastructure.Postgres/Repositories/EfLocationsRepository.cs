@@ -8,38 +8,24 @@ using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Infrastructure.Postgres.Repositories;
 
-public class EfLocationsRepository : ILocationsRepository
+public sealed class EfLocationsRepository : ILocationsRepository
 {
     private readonly AppDbContext _dbContext;
-    private readonly ILogger<EfLocationsRepository> _logger;
 
-    public EfLocationsRepository(AppDbContext dbContext, ILogger<EfLocationsRepository> logger)
+    public EfLocationsRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
-        _logger = logger;
     }
-    public async Task<UnitResult<Error>> AddAsync(Location location, CancellationToken cancellationToken)
+    public async Task AddAsync(Location location, CancellationToken cancellationToken)
     {
-        try
-        {
-            await _dbContext.Locations.AddAsync(location, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            return UnitResult.Success<Error>();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Не удалось сохранить локацию с id {LocationId}", location.Id);
-            return Error.Internal("location.save.failed", "Не удалось сохранить локацию");
-        }
-    }
-
-    public async Task<bool> IsNameTakenAsync(string name, CancellationToken cancellationToken)
-    {
-        var nameResult = Name.Create(name);
+        await _dbContext.Locations.AddAsync(location, cancellationToken);
         
+    }
+
+    public async Task<bool> IsNameTakenAsync(Name name, CancellationToken cancellationToken)
+    {
         return await _dbContext.Locations
-            .AnyAsync(l => l.Name == nameResult.Value!, cancellationToken);
+            .AnyAsync(l => l.Name.Value == name.Value, cancellationToken);
     }
 
     public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
@@ -57,20 +43,6 @@ public class EfLocationsRepository : ILocationsRepository
             return Error.NotFound("location.not.found", $"Локация с {id} не существует");
 
         return locationResult;
-    }
-
-    public async Task<UnitResult<Error>> SaveAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            await _dbContext.SaveChangesAsync(cancellationToken);
-            return UnitResult.Success<Error>();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Не удалось сохранить данные в БД");
-            return Error.Internal("not.save", "Не удалось сохранить данные в БД");
-        }
     }
 
     public async Task<IReadOnlyList<Location>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
