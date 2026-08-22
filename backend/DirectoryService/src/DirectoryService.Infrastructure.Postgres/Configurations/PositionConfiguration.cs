@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DirectoryService.Infrastructure.Postgres.Configurations;
 
-public class PositionConfiguration : IEntityTypeConfiguration<Position>
+public sealed class PositionConfiguration : IEntityTypeConfiguration<Position>
 {
     public void Configure(EntityTypeBuilder<Position> builder)
     {
@@ -22,6 +22,8 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
             .HasConversion(name => name.Value, value => Name.Create(value).Value!)
             .IsRequired()
             .HasMaxLength(200);
+
+        builder.HasIndex(p => p.Name).IsUnique();
 
         builder.Property(p => p.CreatedAt)
             .HasColumnName("created_at")

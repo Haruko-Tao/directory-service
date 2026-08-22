@@ -1,11 +1,10 @@
-﻿using DirectoryService.Contracts.Locations;
-using DirectoryService.Core.Extensions;
+﻿using DirectoryService.Core.Extensions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Shared;
 using FluentValidation;
 
-namespace DirectoryService.Core.Locations.Features.UpdateLocations;
+namespace DirectoryService.Core.Locations.Features.UpdateLocation;
 
 public class UpdateLocationsValidator : AbstractValidator<UpdateLocationCommand>
 {

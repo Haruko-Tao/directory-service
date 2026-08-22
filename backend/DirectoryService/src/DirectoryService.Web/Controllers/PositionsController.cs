@@ -1,17 +1,32 @@
-﻿using DirectoryService.Contracts.Positions;
+﻿using DirectoryService.Contracts;
+using DirectoryService.Contracts.Positions;
+using DirectoryService.Core.Abstractions;
+using DirectoryService.Core.Positions.Features.CreatePosition;
+using DirectoryService.Core.Positions.Features.DeletePosition;
+using DirectoryService.Core.Positions.Features.UpdatePosition;
+using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
 
 [ApiController]
 [Route("positions")]
-public class PositionsController : ControllerBase
+public sealed class PositionsController : ControllerBase
 {
     [HttpPost]
-    public IActionResult Create([FromBody] CreatePositionRequest request, CancellationToken cancellationToken)
+    [ProducesResponseType<Envelope<Guid>>(StatusCodes.Status201Created)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> Create([FromServices] ICommandHandler<CreatePositionCommand, Guid> handler,
+        [FromBody] CreatePositionRequest request,
+        CancellationToken cancellationToken)
     {
-        var id = Guid.NewGuid();
-        return CreatedAtAction(nameof(GetById), new { id }, id);
+        var command = new CreatePositionCommand(request.Name);
+
+        var result = await handler.Handle(command, cancellationToken);
+
+        return result.ToApiResult(StatusCodes.Status201Created);
     }
 
     [HttpGet("{id:guid}")]
@@ -26,15 +41,37 @@ public class PositionsController : ControllerBase
         return Ok(Array.Empty<PositionResponse>());
     }
 
-    [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, [FromBody] UpdatePositionRequest request, CancellationToken cancellationToken)
+    [HttpPatch("{id:guid}")]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> Update(Guid id,
+        [FromServices] ICommandHandler<UpdatePositionCommand> handler,
+        [FromBody] UpdatePositionRequest request,
+        CancellationToken cancellationToken)
     {
-        return Ok();
+        var command = new UpdatePositionCommand(id, request.Name);
+
+        var result = await handler.Handle(command, cancellationToken);
+
+        return result.ToApiResult();
     }
 
     [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id, CancellationToken cancellationToken)
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> Delete(Guid id,
+        [FromServices] ICommandHandler<DeletePositionCommand> handler,
+        CancellationToken cancellationToken)
     {
-        return NoContent();
+        var command = new DeletePositionCommand(id);
+
+        var result = await handler.Handle(command, cancellationToken);
+
+        return result.ToApiResult();
     }
 }

@@ -1,5 +1,5 @@
 ﻿using DirectoryService.Core.Abstractions;
 
-namespace DirectoryService.Core.Departments.Features.UpdateDepartments;
+namespace DirectoryService.Core.Departments.Features.UpdateDepartment;
 
-public record UpdateDepartmentCommand(Guid Id,string Name) : ICommand;
+public record UpdateDepartmentCommand(Guid Id, string Name) : ICommand;

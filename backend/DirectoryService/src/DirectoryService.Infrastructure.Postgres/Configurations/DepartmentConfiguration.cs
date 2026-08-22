@@ -5,7 +5,7 @@ using Path = DirectoryService.Domain.Departments.Path;
 
 namespace DirectoryService.Infrastructure.Postgres.Configurations;
 
-public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
+public sealed class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 {
     public void Configure(EntityTypeBuilder<Department> builder)
     {
@@ -27,8 +27,6 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .HasConversion(slug => slug.Value, value => Slug.Create(value).Value!)
             .IsRequired()
             .HasMaxLength(100);
-
-        builder.HasIndex(d => new { d.Slug }).IsUnique();
 
         builder.Property(d => d.Path)
             .HasColumnName("path")

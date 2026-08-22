@@ -3,7 +3,7 @@ using DirectoryService.Shared;
 
 namespace DirectoryService.Domain.Departments;
 
-public class Name
+public record Name
 {
     public string Value { get; }
 

@@ -39,12 +39,10 @@ public class Location
         return location;
     }
 
-    public UnitResult<Error> Update(Name name, Address address)
+    public void Update(Name name, Address address)
     {
         Name = name;
         Address = address;
         UpdatedAt = DateTime.UtcNow;
-
-        return UnitResult.Success<Error>();
     }
 }

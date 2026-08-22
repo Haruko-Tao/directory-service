@@ -4,8 +4,9 @@ using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Locations;
 using DirectoryService.Core.Locations.Features.CreateLocation;
+using DirectoryService.Core.Locations.Features.DeleteLocation;
 using DirectoryService.Core.Locations.Features.GetLocations;
-using DirectoryService.Core.Locations.Features.UpdateLocations;
+using DirectoryService.Core.Locations.Features.UpdateLocation;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using IResult = Microsoft.AspNetCore.Http.IResult;
@@ -14,7 +15,7 @@ namespace DirectoryService.Web.Controllers;
 
 [ApiController]
 [Route("locations")]
-public class LocationsController : ControllerBase
+public sealed class LocationsController : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType<Envelope<Guid>>(StatusCodes.Status201Created)]
@@ -66,8 +67,16 @@ public class LocationsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id, CancellationToken cancellationToken)
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> Delete([FromServices] ICommandHandler<DeleteLocationCommand> handler, Guid id, CancellationToken cancellationToken)
     {
-        return NoContent();
+        var command = new DeleteLocationCommand(id);
+
+        var deleteResult = await handler.Handle(command, cancellationToken);
+
+        return deleteResult.ToApiResult();
     }
 }
