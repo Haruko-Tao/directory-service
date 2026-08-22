@@ -1,14 +1,14 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Core.Departments;
 using DirectoryService.Domain.DepartmentLocations;
+using DirectoryService.Domain.DepartmentPositions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Shared;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Infrastructure.Postgres.Repositories;
 
-public class EfDepartmentsRepository : IDepartmentsRepository
+public sealed class EfDepartmentsRepository : IDepartmentsRepository
 {
     private readonly AppDbContext _dbContext;
 
@@ -22,6 +22,13 @@ public class EfDepartmentsRepository : IDepartmentsRepository
         await _dbContext.Departments.AddAsync(department, cancellationToken);
     }
 
+    public Task RemoveAsync(Department department, CancellationToken cancellationToken)
+    {
+        _dbContext.Departments.Remove(department);
+
+        return Task.CompletedTask;
+    }
+
     public async Task AddDepartmentLocationAsync(DepartmentLocation departmentLocation, CancellationToken cancellationToken)
     {
         await _dbContext.DepartmentLocations.AddAsync(departmentLocation, cancellationToken);
@@ -31,18 +38,21 @@ public class EfDepartmentsRepository : IDepartmentsRepository
     {
         var departmentResult = await _dbContext.Departments.FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
 
-        if (departmentResult is null)
-            return Error.NotFound("department.not.found", $"Отдела с {id} не существует");
-        
-        return departmentResult;
+        return departmentResult ?? (Result<Department, Error>)Error.NotFound("department.not.found", $"Отдела с {id} не существует");
     }
 
     public async Task<bool> ExistsDepartmentLocationAsync(Guid locationId, Guid departmentId, CancellationToken cancellationToken)
     {
         return await _dbContext.DepartmentLocations
             .AnyAsync(dl => dl.DepartmentId == departmentId && dl.LocationId == locationId,
-                cancellationToken: cancellationToken);
+                 cancellationToken);
 
+    }
+
+    public async Task<int> CountLinksForPositionAsync(Guid positionId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.DepartmentPositions.
+            CountAsync(dp => dp.PositionId == positionId, cancellationToken);
     }
 
     public async Task<UnitResult<Error>> RemoveDepartmentLocationAsync(Guid locationId, Guid departmentId, CancellationToken cancellationToken)
@@ -55,7 +65,38 @@ public class EfDepartmentsRepository : IDepartmentsRepository
 
         _dbContext.DepartmentLocations.Remove(departmentLocation);
         
-        return UnitResult.Success<Error>(); 
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task AddDepartmentPositionAsync(DepartmentPosition departmentPosition, CancellationToken cancellationToken)
+    {
+        await _dbContext.DepartmentPositions.AddAsync(departmentPosition, cancellationToken);
+    }
+
+    public async Task<bool> ExistsDepartmentPositionAsync(Guid positionId, Guid departmentId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.DepartmentPositions.AnyAsync(
+            dp => dp.PositionId == positionId && dp.DepartmentId == departmentId, cancellationToken);
+    }
+
+    public async Task<UnitResult<Error>> RemoveDepartmentPositionAsync(Guid positionId, Guid departmentId, CancellationToken cancellationToken)
+    {
+        var departmentPosition =
+            await _dbContext.DepartmentPositions.FirstOrDefaultAsync(
+                dp => dp.PositionId == positionId && dp.DepartmentId == departmentId, cancellationToken);
+
+        if (departmentPosition is null)
+            return Error.NotFound("department.position.not.found.link",
+                $"Связь между отделом {departmentId} и позицией {positionId} не найдена");
+
+        _dbContext.DepartmentPositions.Remove(departmentPosition);
+
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<int> CountLinksForLocationAsync(Guid locationId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.DepartmentLocations.CountAsync(dp => dp.LocationId == locationId, cancellationToken);
     }
 
     public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
@@ -75,7 +116,23 @@ public class EfDepartmentsRepository : IDepartmentsRepository
 
     public async Task<bool> IsSlugTakenAsync(Slug slug, Guid? parentId, CancellationToken cancellationToken)
     {
-        return await _dbContext.Departments.AnyAsync(d => d.Slug.Value == slug.Value && d.ParentId == parentId, cancellationToken);
+        return await _dbContext.Departments.AnyAsync(d => d.Slug == slug && d.ParentId == parentId, cancellationToken);
     }
-    
+
+    public async Task<int> CountChildrenAsync(Guid departmentId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Departments.CountAsync(d => d.ParentId == departmentId, cancellationToken);
+    }
+
+    public async Task<int> CountLocationLinksForDepartmentAsync(Guid departmentId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.DepartmentLocations.CountAsync(dl => dl.DepartmentId == departmentId,
+            cancellationToken);
+    }
+
+    public async Task<int> CountPositionLinksForDepartmentAsync(Guid departmentId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.DepartmentPositions.CountAsync(dp => dp.DepartmentId == departmentId,
+            cancellationToken);
+    }
 }

@@ -6,7 +6,7 @@ using DirectoryService.Shared;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Core.Departments.Features.UpdateDepartments;
+namespace DirectoryService.Core.Departments.Features.UpdateDepartment;
 
 public sealed class UpdateDepartmentHandler : ICommandHandler<UpdateDepartmentCommand>
 {                   

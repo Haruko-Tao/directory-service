@@ -2,11 +2,11 @@
 using DirectoryService.Domain.Departments;
 using FluentValidation;
 
-namespace DirectoryService.Core.Departments.Features.UpdateDepartment;
+namespace DirectoryService.Core.Positions.Features.UpdatePosition;
 
-public class UpdateDepartmentsValidator : AbstractValidator<UpdateDepartmentCommand>
+public sealed class UpdatePositionValidator : AbstractValidator<UpdatePositionCommand>
 {
-    public UpdateDepartmentsValidator()
+    public UpdatePositionValidator()
     {
         RuleFor(x => x.Name)
             .MustBeValueObject(Name.Create);

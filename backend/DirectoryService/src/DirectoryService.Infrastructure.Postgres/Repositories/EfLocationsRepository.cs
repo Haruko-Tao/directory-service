@@ -4,7 +4,6 @@ using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Shared;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Infrastructure.Postgres.Repositories;
 
@@ -19,13 +18,12 @@ public sealed class EfLocationsRepository : ILocationsRepository
     public async Task AddAsync(Location location, CancellationToken cancellationToken)
     {
         await _dbContext.Locations.AddAsync(location, cancellationToken);
-        
     }
 
     public async Task<bool> IsNameTakenAsync(Name name, CancellationToken cancellationToken)
     {
         return await _dbContext.Locations
-            .AnyAsync(l => l.Name.Value == name.Value, cancellationToken);
+            .AnyAsync(l => l.Name == name, cancellationToken);
     }
 
     public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
@@ -52,5 +50,12 @@ public sealed class EfLocationsRepository : ILocationsRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken: cancellationToken);
+    }
+
+    public Task RemoveAsync(Location location, CancellationToken cancellationToken)
+    {
+        _dbContext.Locations.Remove(location);
+        
+        return Task.CompletedTask;
     }
 }

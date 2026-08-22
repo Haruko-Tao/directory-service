@@ -35,4 +35,10 @@ public class Position
 
         return position;
     }
+
+    public void Update(Name name)
+    {
+        Name = name;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }

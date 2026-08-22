@@ -4,7 +4,7 @@ using DirectoryService.Shared;
 
 namespace DirectoryService.Domain.Departments;
 
-public class Slug
+public record Slug
 {
     public string Value { get; }
 

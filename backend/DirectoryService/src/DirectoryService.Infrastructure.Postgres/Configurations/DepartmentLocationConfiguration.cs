@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DirectoryService.Infrastructure.Postgres.Configurations;
 
-public class DepartmentLocationConfiguration : IEntityTypeConfiguration<DepartmentLocation>
+public sealed class DepartmentLocationConfiguration : IEntityTypeConfiguration<DepartmentLocation>
 {
     public void Configure(EntityTypeBuilder<DepartmentLocation> builder)
     {
@@ -31,12 +31,12 @@ public class DepartmentLocationConfiguration : IEntityTypeConfiguration<Departme
         builder.HasOne<Department>()
             .WithMany()
             .HasForeignKey(dl => dl.DepartmentId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne<Location>()
             .WithMany()
             .HasForeignKey(dl => dl.LocationId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(dl => new { dl.DepartmentId, dl.LocationId })
             .IsUnique();

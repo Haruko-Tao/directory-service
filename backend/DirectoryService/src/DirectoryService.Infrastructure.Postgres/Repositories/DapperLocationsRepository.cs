@@ -10,7 +10,7 @@ using Npgsql;
 
 namespace DirectoryService.Infrastructure.Postgres.Repositories;
 
-public class DapperLocationsRepository : ILocationsRepository
+public class DapperLocationsRepository
 {
     private readonly string _connectionString;
     private readonly ILogger<DapperLocationsRepository> _logger;
@@ -55,11 +55,7 @@ public class DapperLocationsRepository : ILocationsRepository
         }
         
     }
-
-    public Task<bool> IsNameTakenAsync(Name name, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
+    
 
     public async Task<bool> IsNameTakenAsync(string name, CancellationToken cancellationToken)
     {
@@ -89,15 +85,5 @@ public class DapperLocationsRepository : ILocationsRepository
         var command = new CommandDefinition(sql, new { Id = id }, cancellationToken: cancellationToken);
 
         return await connection.ExecuteScalarAsync<bool>(command);
-    }
-
-    public Task<Result<Location, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<Location>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
     }
 }
