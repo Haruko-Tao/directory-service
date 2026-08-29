@@ -6,6 +6,7 @@ using DirectoryService.Core.Departments.Features.AddLocation;
 using DirectoryService.Core.Departments.Features.AddPosition;
 using DirectoryService.Core.Departments.Features.CreateDepartment;
 using DirectoryService.Core.Departments.Features.DeleteDepartment;
+using DirectoryService.Core.Departments.Features.GetDepartmentById;
 using DirectoryService.Core.Departments.Features.GetDepartments;
 using DirectoryService.Core.Departments.Features.RemoveLocation;
 using DirectoryService.Core.Departments.Features.RemovePosition;
@@ -40,9 +41,18 @@ public sealed class DepartmentsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public IActionResult GetById(Guid id, CancellationToken cancellationToken)
+    [ProducesResponseType<Envelope<DepartmentResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> GetById(Guid id,
+        [FromServices] IQueryHandler<GetDepartmentByIdQuery, DepartmentResponse> handler,
+        CancellationToken cancellationToken)
     {
-        return NotFound();
+        var query = new GetDepartmentByIdQuery(id);
+
+        var departmentResult = await handler.Handle(query, cancellationToken);
+
+        return departmentResult.ToApiResult();
     }
 
     [HttpGet]

@@ -7,7 +7,7 @@ using DirectoryService.Infrastructure.Postgres.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
+using Microsoft.Extensions.Logging;
 
 
 namespace DirectoryService.Infrastructure.Postgres;
@@ -18,9 +18,15 @@ public static class InfrastructureDependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var connectionString = configuration.GetConnectionString("DefaultConnection") ??
+                               throw new InvalidOperationException("Не задана строка подключения");
+        
         services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(connectionString));
 
+        services.AddScoped<IReadDbContext>(provider => new ReadDbContext(connectionString,
+            provider.GetRequiredService<ILoggerFactory>()));
+        
         services.AddScoped<ILocationsRepository, EfLocationsRepository>();
             
         services.AddScoped<IDepartmentsRepository, EfDepartmentsRepository>();
