@@ -2,9 +2,11 @@
 using DirectoryService.Contracts;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Abstractions;
+using DirectoryService.Core.Database;
 using DirectoryService.Core.Locations;
 using DirectoryService.Core.Locations.Features.CreateLocation;
 using DirectoryService.Core.Locations.Features.DeleteLocation;
+using DirectoryService.Core.Locations.Features.GetLocationById;
 using DirectoryService.Core.Locations.Features.GetLocations;
 using DirectoryService.Core.Locations.Features.UpdateLocation;
 using DirectoryService.Web.Extensions;
@@ -33,9 +35,18 @@ public sealed class LocationsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public  IActionResult GetById(Guid id, CancellationToken cancellationToken)
+    [ProducesResponseType<Envelope<LocationResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public  async Task<IResult> GetById(Guid id,
+        [FromServices] IQueryHandler<GetLocationByIdQuery, LocationResponse> handler,
+        CancellationToken cancellationToken)
     {
-        return NotFound();
+        var query = new GetLocationByIdQuery(id);
+
+        var queryResult = await handler.Handle(query, cancellationToken);
+        
+        return queryResult.ToApiResult();
     }
 
     [HttpGet]

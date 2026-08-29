@@ -6,7 +6,8 @@ namespace DirectoryService.Core.Abstractions;
 #pragma warning disable CA1040
 public interface ICommand {};
 public interface IQuery {};
-#pragma warning disable CA1040
+#pragma warning restore CA1040
+
 public interface IQueryHandler<TQuery, TResponse> where TQuery : IQuery
 {
     Task<Result<TResponse, Failure>> Handle(TQuery query, CancellationToken cancellationToken);
