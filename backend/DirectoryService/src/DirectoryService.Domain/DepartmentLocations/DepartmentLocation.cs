@@ -25,10 +25,10 @@ public class DepartmentLocation
     public static Result<DepartmentLocation, Error> Create(Guid departmentId, Guid locationId, bool isPrimary = false)
     {
         if (departmentId == Guid.Empty)
-            return Error.Validation("departmentid.not.empty", "Департамент должен существовать");
+            return Error.Validation("departmentId.not.empty", "Департамент должен существовать");
         
         if (locationId == Guid.Empty)
-            return Error.Validation("locationid.not.empty", "Локация должна существовать");
+            return Error.Validation("locationId.not.empty", "Локация должна существовать");
 
         var departmentLocation = new DepartmentLocation(Guid.NewGuid(), departmentId, locationId, isPrimary);
 
