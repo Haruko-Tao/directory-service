@@ -15,12 +15,12 @@ public sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departmen
 
         builder.Property(d => d.Id)
             .HasColumnName("id");
-
-        builder.Property(d => d.Name)
-            .HasColumnName("name")
-            .HasConversion(name => name.Value, value => Name.Create(value).Value!)
-            .IsRequired()
-            .HasMaxLength(200);
+        
+        builder.ComplexProperty(d => d.Name,
+            name =>
+            {
+                name.Property(a => a.Value).HasColumnName("name").IsRequired().HasMaxLength(200);
+            });
 
         builder.Property(d => d.Slug)
             .HasColumnName("slug")
