@@ -1,11 +1,10 @@
-﻿using DirectoryService.Contracts.Departments;
-using DirectoryService.Core.Extensions;
+﻿using DirectoryService.Core.Extensions;
 using DirectoryService.Shared;
 using FluentValidation;
 
 namespace DirectoryService.Core.Departments.Features.GetDepartments;
 
-public class GetDepartmentsValidator : AbstractValidator<GetDepartmentsQuery>
+public sealed class GetDepartmentsValidator : AbstractValidator<GetDepartmentsQuery>
 {
     public GetDepartmentsValidator()
     {
@@ -13,12 +12,31 @@ public class GetDepartmentsValidator : AbstractValidator<GetDepartmentsQuery>
             .MustSatisfy(page =>
                 page >= 1 
                     ? null 
-                    : Error.Validation("page.invalid", "Страниц должно быть больше 1"));
+                    : Error.Validation("page.invalid", "Страниц должно быть больше 0"));
 
         RuleFor(x => x.PageSize)
             .MustSatisfy(pagesize =>
                 pagesize >= 1 && pagesize <= 100
                     ? null
-                    : Error.Validation("pagesize.invalid", "Страниц должно быть меньше или равно 100 и больше 1"));
+                    : Error.Validation("page.size.invalid", "Размер страницы должен быть не больше 100 и больше 1"));
+
+        RuleFor(x => x.Search)
+            .MustSatisfy(s =>
+                string.IsNullOrEmpty(s) || s.Length <= 100
+                    ? null
+                    : Error.Validation("search.invalid", "Длина имени поиска должна быть не большее 100"));
+
+        RuleFor(x => x.SortBy)
+Error.Validation("search.invalid", "Длина поискового запроса должна быть не больше 100")
+                s == "CREATEDAT" || s == "NAME"
+                    ? null 
+                    : Error.Validation("sort.by.invalid", "Неправильное имя для сортировки"));
+
+        RuleFor(x => x.SortDir)
+            .MustSatisfy(s =>
+                s == "DESC" || s == "ASC"
+                    ? null
+                    : Error.Validation("sort.dir.invalid", "Некорректное имя для сортировки"));
+
     }
 }

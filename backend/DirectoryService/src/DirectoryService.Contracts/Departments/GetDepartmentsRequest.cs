@@ -1,3 +1,8 @@
 ﻿namespace DirectoryService.Contracts.Departments;
 
-public record GetDepartmentsRequest(int Page, int PageSize);
+public sealed record GetDepartmentsRequest(
+    string? Search,
+    string? SortBy,
+    string? SortDir,
+    int? Page,
+    int? PageSize);

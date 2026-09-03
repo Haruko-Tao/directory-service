@@ -56,15 +56,19 @@ public sealed class DepartmentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IResult> GetAll([FromQuery] GetDepartmentsRequest request,
-        [FromServices] IQueryHandler<GetDepartmentsQuery, IReadOnlyCollection<DepartmentResponse>> handler,
+    [ProducesResponseType<Envelope<PagedResult<DepartmentListItemDto>>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> GetList([FromQuery] GetDepartmentsRequest request,
+        [FromServices] IQueryHandler<GetDepartmentsQuery, PagedResult<DepartmentListItemDto>> handler,
         CancellationToken cancellationToken)
     {
-        var query = new GetDepartmentsQuery(request.Page, request.PageSize);
+        var query = new GetDepartmentsQuery(request.Search, request.SortBy?.ToUpperInvariant() ?? "NAME",
+            request.SortDir?.ToUpperInvariant() ?? "ASC", request.Page ?? 1, request.PageSize ?? 20);
 
-        var getAllResult = await handler.Handle(query, cancellationToken);
+        var result = await handler.Handle(query, cancellationToken);
 
-        return getAllResult.ToApiResult();
+        return result.ToApiResult();
     }
 
     [HttpPatch("{id:guid}")]
