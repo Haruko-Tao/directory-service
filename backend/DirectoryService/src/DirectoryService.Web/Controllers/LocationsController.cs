@@ -8,6 +8,7 @@ using DirectoryService.Core.Locations.Features.CreateLocation;
 using DirectoryService.Core.Locations.Features.DeleteLocation;
 using DirectoryService.Core.Locations.Features.GetLocationById;
 using DirectoryService.Core.Locations.Features.GetLocations;
+using DirectoryService.Core.Locations.Features.GetTopLocations;
 using DirectoryService.Core.Locations.Features.UpdateLocation;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -89,5 +90,18 @@ public sealed class LocationsController : ControllerBase
         var deleteResult = await handler.Handle(command, cancellationToken);
 
         return deleteResult.ToApiResult();
+    }
+
+    [HttpGet("top")]
+    [ProducesResponseType<Envelope<IReadOnlyCollection<TopLocationsResponse>>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> GetTop([FromServices] IQueryHandler<GetTopLocationsQuery, IReadOnlyCollection<TopLocationsResponse>> handler,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetTopLocationsQuery();
+
+        var result = await handler.Handle(query, cancellationToken);
+
+        return result.ToApiResult();
     }
 }

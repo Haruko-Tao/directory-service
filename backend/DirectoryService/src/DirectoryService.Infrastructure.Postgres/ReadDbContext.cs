@@ -1,4 +1,5 @@
 ﻿using DirectoryService.Core.Database;
+using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Positions;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Infrastructure.Postgres;
 
-public class ReadDbContext : DbContext, IReadDbContext
+public sealed class ReadDbContext : DbContext, IReadDbContext
 {
     private readonly string _connectionString;
     private readonly ILoggerFactory _loggerFactory;
@@ -22,6 +23,7 @@ public class ReadDbContext : DbContext, IReadDbContext
     public IQueryable<Location> Locations => Set<Location>().AsNoTracking();
     public IQueryable<Department> Departments => Set<Department>().AsNoTracking();
     public IQueryable<Position> Positions => Set<Position>().AsNoTracking();
+    public IQueryable<DepartmentLocation> DepartmentLocations => Set<DepartmentLocation>().AsNoTracking();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
