@@ -26,6 +26,8 @@ public static class InfrastructureDependencyInjection
 
         services.AddScoped<IReadDbContext>(provider => new ReadDbContext(connectionString,
             provider.GetRequiredService<ILoggerFactory>()));
+
+        services.AddScoped<ILocationsReadRepository>(_ => new DapperLocationsRepository(connectionString));
         
         services.AddScoped<ILocationsRepository, EfLocationsRepository>();
             

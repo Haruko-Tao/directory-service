@@ -1,33 +1,32 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Contracts;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Abstractions;
-using DirectoryService.Core.Locations.Extensions;
 using DirectoryService.Shared;
 using FluentValidation;
 
 namespace DirectoryService.Core.Locations.Features.GetLocations;
 
-public sealed class GetLocationsHandler : IQueryHandler<GetLocationsQuery, IReadOnlyCollection<LocationResponse>>
+public sealed class GetLocationsHandler : IQueryHandler<GetLocationsQuery, PagedResult<LocationListItemDto>>
 {
-    private readonly ILocationsRepository _locationsRepository;
+    private readonly ILocationsReadRepository _locationsReadRepository;
     private readonly IValidator<GetLocationsQuery> _validator;
     
-    public GetLocationsHandler(ILocationsRepository locationsRepository,
+    public GetLocationsHandler(ILocationsReadRepository locationsReadRepository,
         IValidator<GetLocationsQuery> validator)
     {
-        _locationsRepository = locationsRepository;
+        _locationsReadRepository = locationsReadRepository;
         _validator = validator;
     }
     
-    public async Task<Result<IReadOnlyCollection<LocationResponse>, Failure>> Handle(GetLocationsQuery query, CancellationToken cancellationToken)
+    public async Task<Result<PagedResult<LocationListItemDto>, Failure>> Handle(GetLocationsQuery query, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(query, cancellationToken);
 
         if (!validationResult.IsValid)
-            return new Failure(validationResult.Errors.Select(l => (Error)l.CustomState!));
-
-        var locationResult = await _locationsRepository.GetAllAsync(query.Page, query.PageSize, cancellationToken);
-
-        return locationResult.Select(l => l.ToResponse()).ToList();
+            return new Failure(validationResult.Errors.Select(s => (Error)s.CustomState!));
+        
+        return await _locationsReadRepository.GetPageAsync(query, cancellationToken);
     }
+    
 }
