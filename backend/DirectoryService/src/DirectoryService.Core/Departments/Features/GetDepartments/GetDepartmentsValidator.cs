@@ -27,10 +27,10 @@ public sealed class GetDepartmentsValidator : AbstractValidator<GetDepartmentsQu
                     : Error.Validation("search.invalid", "Длина имени поиска должна быть не большее 100"));
 
         RuleFor(x => x.SortBy)
-Error.Validation("search.invalid", "Длина поискового запроса должна быть не больше 100")
+            .MustSatisfy(s =>
                 s == "CREATEDAT" || s == "NAME"
-                    ? null 
-                    : Error.Validation("sort.by.invalid", "Неправильное имя для сортировки"));
+                ? null 
+                : Error.Validation("sort.by.invalid", "Запрос можно не сортировать или сортировать по имени, дате создания"));
 
         RuleFor(x => x.SortDir)
             .MustSatisfy(s =>

@@ -2,4 +2,10 @@
 
 namespace DirectoryService.Core.Locations.Features.GetLocations;
 
-public record GetLocationsQuery(int Page, int PageSize) : IQuery;
+public record GetLocationsQuery(
+    string? Search,
+    string SortBy,
+    string SortDir,
+    int Page,
+    int PageSize,
+    int? MinDepartmentCount) : IQuery;

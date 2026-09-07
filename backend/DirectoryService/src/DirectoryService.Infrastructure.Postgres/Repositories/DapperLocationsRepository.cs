@@ -1,89 +1,106 @@
-﻿using CSharpFunctionalExtensions;
-using Dapper;
+﻿using Dapper;
+using DirectoryService.Contracts;
+using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Locations;
-using DirectoryService.Domain.Departments;
-using DirectoryService.Domain.Locations;
-using DirectoryService.Shared;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using DirectoryService.Core.Locations.Features.GetLocations;
 using Npgsql;
+
 
 namespace DirectoryService.Infrastructure.Postgres.Repositories;
 
-public class DapperLocationsRepository
+public sealed class DapperLocationsRepository : ILocationsReadRepository
 {
     private readonly string _connectionString;
-    private readonly ILogger<DapperLocationsRepository> _logger;
 
-    public DapperLocationsRepository(IConfiguration configuration, ILogger<DapperLocationsRepository> logger)
-    {
-        _connectionString = configuration.GetConnectionString("DefaultConnection")!;
-        _logger = logger;
-    }
+    private const string FilteredLocationsCte = """
+                                             WITH filtered_locations AS (
+                                             SELECT l.id, l.name, l.city, l.street, l.apartment, l.house, l.created_at, COUNT(dl.department_id)::int AS department_count
+                                             FROM locations l
+                                             LEFT JOIN department_locations dl ON l.id = dl.location_id
+                                             WHERE(@Search IS NULL OR UPPER(l.name) LIKE @Search)
+                                             GROUP BY l.id
+                                             HAVING (@MinDepartmentCount IS NULL OR @MinDepartmentCount <= COUNT(dl.department_id)::int)
+                                             )
+                                             """;
     
-    public async Task AddAsync(Location location, CancellationToken cancellationToken)
+    private sealed record LocationListRow(
+        Guid Id,
+        string Name,
+        string City,
+        string Street,
+        string House,
+        string? Apartment,
+        DateTime CreatedAt,
+        int DepartmentCount);
+    
+    public DapperLocationsRepository(string connectionString)
     {
-        const string sql = """
-                           INSERT INTO locations (id, name, city, street, house, apartment, created_at, updated_at)
-                           VALUES (@Id, @Name, @City, @Street, @House, @Apartment, @CreatedAt, @UpdatedAt)
-                           """;
+        _connectionString = connectionString;
+    }
+
+    public async Task<PagedResult<LocationListItemDto>> GetPageAsync(GetLocationsQuery query,
+        CancellationToken cancellationToken)
+    {   
+        var searchPattern = 
+            string.IsNullOrWhiteSpace(query.Search) 
+            ? null 
+            : $"%{query.Search.ToUpperInvariant()}%";
+
+        int offset = (query.Page - 1) * query.PageSize;
+
+        string orderBy = (query.SortBy, query.SortDir) switch
+        {
+            ("NAME", "ASC") => "fl.name ASC",
+            ("NAME", "DESC") => "fl.name DESC",
+            ("CREATEDAT", "ASC") => "fl.created_at ASC",
+            ("CREATEDAT", "DESC") => "fl.created_at DESC",
+            ("DEPARTMENTCOUNT", "ASC") => "fl.department_count ASC",
+            ("DEPARTMENTCOUNT", "DESC") => "fl.department_count DESC",
+            _ => "fl.name ASC"
+        };
+
+        string sql = $"""
+                      {FilteredLocationsCte}
+                      SELECT COUNT(*)::int FROM filtered_locations;
+                      
+                      {FilteredLocationsCte}
+                      SELECT fl.id, fl.name, fl.city, fl.street, fl.house, fl.apartment, fl.created_at AS CreatedAt, fl.department_count AS DepartmentCount
+                      FROM filtered_locations fl
+                      ORDER BY {orderBy}, fl.id
+                      LIMIT @PageSize
+                      OFFSET @Offset
+                      """;
 
         var parameters = new
         {
-            Id = location.Id,
-            Name = location.Name.Value,
-            City = location.Address.City,
-            Street = location.Address.Street,
-            House = location.Address.House,
-            Apartment = location.Address.Apartment,
-            CreatedAt = location.CreatedAt,
-            UpdatedAt = location.UpdatedAt
+            Search = searchPattern,
+            MinDepartmentCount = query.MinDepartmentCount,
+            Offset = offset,
+            PageSize = query.PageSize
         };
-
-        try
-        {
-            await using var connection = new NpgsqlConnection(_connectionString);
-
-            var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
-
-            await connection.ExecuteAsync(command);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Не удалось сохранить локацию с id {LocationId}", location.Id);
-            throw;
-        }
         
+        await using var connection = new NpgsqlConnection(_connectionString);
+
+        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+
+        await using var reader = await connection.QueryMultipleAsync(command);
+
+        var totalCount = await reader.ReadSingleAsync<int>();
+
+        var rows = await reader.ReadAsync<LocationListRow>();
+
+        var items = rows.Select(x => new LocationListItemDto(
+            x.Id,
+            x.Name,
+            new AddressDto(
+                x.City,
+                x.Street,
+                x.House,
+                x.Apartment),
+            x.CreatedAt, x.DepartmentCount)).ToList();
+
+        return new PagedResult<LocationListItemDto>(items, totalCount, query.Page, query.PageSize);
     }
+
     
-
-    public async Task<bool> IsNameTakenAsync(string name, CancellationToken cancellationToken)
-    {
-        const string sql = """
-                           SELECT EXISTS(
-                           SELECT 1 FROM locations WHERE name = @Name
-                           )
-                           """;
-
-        await using var connection = new NpgsqlConnection(_connectionString);
-
-        var command = new CommandDefinition(sql, new { Name = name }, cancellationToken: cancellationToken);
-
-        return await connection.ExecuteScalarAsync<bool>(command);
-    }
-
-    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
-    {
-        const string sql = """
-                           SELECT EXISTS( 
-                           SELECT 1 FROM locations WHERE id = @Id
-                           )
-                           """;
-
-        await using var connection = new NpgsqlConnection(_connectionString);
-
-        var command = new CommandDefinition(sql, new { Id = id }, cancellationToken: cancellationToken);
-
-        return await connection.ExecuteScalarAsync<bool>(command);
-    }
 }

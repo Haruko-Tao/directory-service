@@ -51,13 +51,22 @@ public sealed class LocationsController : ControllerBase
     }
 
     [HttpGet]
-    public  async Task<IResult> GetAll([FromQuery] GetLocationsRequest request,
-        [FromServices]IQueryHandler<GetLocationsQuery, IReadOnlyCollection<LocationResponse>> query,
+    [ProducesResponseType<Envelope<PagedResult<LocationListItemDto>>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public  async Task<IResult> GetList([FromQuery] GetLocationsRequest request,
+        [FromServices]IQueryHandler<GetLocationsQuery, PagedResult<LocationListItemDto>> handler,
         CancellationToken cancellationToken)
     {
-        var command = new GetLocationsQuery(request.Page, request.PageSize);
+        var query = new GetLocationsQuery(
+            request.Search,
+            request.SortBy?.ToUpperInvariant() ?? "NAME",
+            request.SortDir?.ToUpperInvariant() ?? "ASC",
+            request.Page ?? 1,
+            request.PageSize ?? 20,
+            request.MinDepartmentCount);
         
-        var getAllResult = await query.Handle(command, cancellationToken);
+        var getAllResult = await handler.Handle(query, cancellationToken);
 
         return getAllResult.ToApiResult();
     }
