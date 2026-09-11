@@ -1,6 +1,6 @@
 services:
     postgres:
-        image: postgres
+        image: postgres:17
         container_name: directory_service_postgres
         restart: unless-stopped
         environment:

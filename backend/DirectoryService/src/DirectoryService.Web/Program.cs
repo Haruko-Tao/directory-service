@@ -4,7 +4,6 @@ using DirectoryService.Core;
 using DirectoryService.Infrastructure.Postgres;
 using DirectoryService.Web;
 using DirectoryService.Web.Middlewares;
-using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -70,3 +69,11 @@ finally
 {
     await Log.CloseAndFlushAsync();
 }
+
+#pragma warning disable S1118
+namespace DirectoryService.Web
+{
+    public partial class Program {}
+}
+
+#pragma warning restore S1118

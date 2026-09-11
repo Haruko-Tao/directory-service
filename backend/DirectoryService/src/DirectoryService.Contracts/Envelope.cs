@@ -1,4 +1,5 @@
-﻿using DirectoryService.Shared;
+﻿using System.Text.Json.Serialization;
+using DirectoryService.Shared;
 
 namespace DirectoryService.Contracts;
 
@@ -6,7 +7,8 @@ public record Envelope<T>
 {
     public T Data { get; }
     public Failure Errors { get; }
-
+    
+    [JsonConstructor]
     internal Envelope(T data, Failure errors)
     {
         Data = data;
