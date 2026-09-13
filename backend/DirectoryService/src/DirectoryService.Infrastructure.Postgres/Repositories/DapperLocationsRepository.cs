@@ -14,12 +14,13 @@ public sealed class DapperLocationsRepository : ILocationsReadRepository
 
     private const string FilteredLocationsCte = """
                                              WITH filtered_locations AS (
-                                             SELECT l.id, l.name, l.city, l.street, l.apartment, l.house, l.created_at, COUNT(dl.department_id)::int AS department_count
+                                             SELECT l.id, l.name, l.city, l.street, l.apartment, l.house, l.created_at, COUNT(d.id)::int AS department_count
                                              FROM locations l
                                              LEFT JOIN department_locations dl ON l.id = dl.location_id
-                                             WHERE(@Search IS NULL OR UPPER(l.name) LIKE @Search)
+                                             LEFT JOIN departments d ON d.id = dl.department_id AND d.is_deleted = FALSE
+                                             WHERE(l.is_deleted = FALSE AND (@Search IS NULL OR UPPER(l.name) LIKE @Search))
                                              GROUP BY l.id
-                                             HAVING (@MinDepartmentCount IS NULL OR @MinDepartmentCount <= COUNT(dl.department_id)::int)
+                                             HAVING (@MinDepartmentCount IS NULL OR @MinDepartmentCount <= COUNT(d.id)::int)
                                              )
                                              """;
     

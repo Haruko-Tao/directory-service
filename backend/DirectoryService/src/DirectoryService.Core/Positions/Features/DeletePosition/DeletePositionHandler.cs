@@ -42,7 +42,7 @@ public sealed class DeletePositionHandler : ICommandHandler<DeletePositionComman
                 .ToFailure();
         }
 
-        await _repository.RemoveAsync(positionResult.Value, cancellationToken);
+        positionResult.Value.SoftDelete(DateTime.UtcNow);
 
         var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
 

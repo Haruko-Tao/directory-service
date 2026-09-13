@@ -1,4 +1,5 @@
-﻿using DirectoryService.Core.Database;
+﻿using DirectoryService.Core;
+using DirectoryService.Core.Database;
 using DirectoryService.Core.Departments;
 using DirectoryService.Core.Locations;
 using DirectoryService.Core.Positions;
@@ -8,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
 
 namespace DirectoryService.Infrastructure.Postgres;
 
@@ -36,8 +36,21 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IPositionsRepository, EfPositionsRepository>();
 
         services.AddScoped<ITransactionManager, TransactionManager>();
+
+        services.AddOptions<SoftDeleteCleanupOptions>()
+            .Bind(configuration.GetSection(SoftDeleteCleanupOptions.SectionName))
+            .Validate(options => 
+                options.Interval > TimeSpan.Zero,
+                "Интервал должен быть больше нуля")
+            .Validate(options => 
+                options.RetentionPeriod > TimeSpan.Zero, "Период очистки должен быть больше 0")
+            .Validate(options => 
+                options.BatchSize > 0, "Размер очистки должен быть больше 0")
+            .ValidateOnStart();
+
+        services.AddScoped<ISoftDeleteCleaner>(_ => new SoftDeleteCleaner(connectionString));
         
-        
+        services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 
         return services;
     }

@@ -22,13 +22,6 @@ public sealed class EfDepartmentsRepository : IDepartmentsRepository
         await _dbContext.Departments.AddAsync(department, cancellationToken);
     }
 
-    public Task RemoveAsync(Department department, CancellationToken cancellationToken)
-    {
-        _dbContext.Departments.Remove(department);
-
-        return Task.CompletedTask;
-    }
-
     public async Task AddDepartmentLocationAsync(DepartmentLocation departmentLocation, CancellationToken cancellationToken)
     {
         await _dbContext.DepartmentLocations.AddAsync(departmentLocation, cancellationToken);
@@ -52,7 +45,8 @@ public sealed class EfDepartmentsRepository : IDepartmentsRepository
     public async Task<int> CountLinksForPositionAsync(Guid positionId, CancellationToken cancellationToken)
     {
         return await _dbContext.DepartmentPositions.
-            CountAsync(dp => dp.PositionId == positionId, cancellationToken);
+            CountAsync(dp => dp.PositionId == positionId 
+                             && _dbContext.Departments.Any(d => d.Id == dp.DepartmentId), cancellationToken);
     }
 
     public async Task<UnitResult<Error>> RemoveDepartmentLocationAsync(Guid locationId, Guid departmentId, CancellationToken cancellationToken)
@@ -96,7 +90,9 @@ public sealed class EfDepartmentsRepository : IDepartmentsRepository
 
     public async Task<int> CountLinksForLocationAsync(Guid locationId, CancellationToken cancellationToken)
     {
-        return await _dbContext.DepartmentLocations.CountAsync(dp => dp.LocationId == locationId, cancellationToken);
+        return await _dbContext.DepartmentLocations.
+            CountAsync(dp => dp.LocationId == locationId 
+                && _dbContext.Locations.Any(l => l.Id == dp.LocationId), cancellationToken);
     }
 
     public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
@@ -126,13 +122,17 @@ public sealed class EfDepartmentsRepository : IDepartmentsRepository
 
     public async Task<int> CountLocationLinksForDepartmentAsync(Guid departmentId, CancellationToken cancellationToken)
     {
-        return await _dbContext.DepartmentLocations.CountAsync(dl => dl.DepartmentId == departmentId,
+        return await _dbContext.DepartmentLocations
+            .CountAsync(dl => dl.DepartmentId == departmentId
+                && _dbContext.Departments.Any(d => d.Id == dl.DepartmentId),
             cancellationToken);
     }
 
     public async Task<int> CountPositionLinksForDepartmentAsync(Guid departmentId, CancellationToken cancellationToken)
     {
-        return await _dbContext.DepartmentPositions.CountAsync(dp => dp.DepartmentId == departmentId,
+        return await _dbContext.DepartmentPositions
+            .CountAsync(dp => dp.DepartmentId == departmentId
+                && _dbContext.Positions.Any(p => p.Id == dp.PositionId),
             cancellationToken);
     }
 }

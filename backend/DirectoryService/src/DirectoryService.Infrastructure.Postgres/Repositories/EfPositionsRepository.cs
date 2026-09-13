@@ -46,11 +46,4 @@ public sealed class EfPositionsRepository : IPositionsRepository
             .Take(pageSize)
             .ToListAsync(cancellationToken: cancellationToken);
     }
-
-    public Task RemoveAsync(Position position, CancellationToken cancellationToken)
-    {
-        _dbContext.Positions.Remove(position);
-        
-        return Task.CompletedTask;
-    }
 }

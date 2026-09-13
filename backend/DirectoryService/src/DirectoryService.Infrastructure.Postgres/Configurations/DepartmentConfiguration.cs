@@ -33,7 +33,9 @@ public sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departmen
             .HasConversion(path => path.Value, value => Path.Create(value, null).Value!)
             .IsRequired();
 
-        builder.HasIndex(d => new { d.Path }).IsUnique();
+        builder.HasIndex(d => d.Path)
+            .IsUnique()
+            .HasFilter("is_deleted = false");
 
         builder.Property(d => d.ParentId)
             .HasColumnName("parent_id");
@@ -48,5 +50,21 @@ public sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departmen
             .WithMany()
             .HasForeignKey(d => d.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Property(d => d.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired();
+
+        builder.Property(d => d.DeletedAt)
+            .HasColumnName("deleted_at");
+
+        builder.HasQueryFilter(d => !d.IsDeleted);
+
+        builder.HasIndex(d => d.DeletedAt)
+            .HasFilter("is_deleted");
+
+        builder.HasIndex(d => d.Slug)
+            .IsUnique()
+            .HasFilter("is_deleted = false");
     }
 }

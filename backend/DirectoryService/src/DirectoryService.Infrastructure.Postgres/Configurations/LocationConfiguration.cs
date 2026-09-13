@@ -40,5 +40,17 @@ public sealed class LocationConfiguration : IEntityTypeConfiguration<Location>
         builder.Property(l => l.UpdatedAt)
             .HasColumnName("updated_at")
             .IsRequired();
+
+        builder.Property(l => l.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired();
+
+        builder.Property(l => l.DeletedAt)
+            .HasColumnName("deleted_at");
+
+        builder.HasQueryFilter(l => !l.IsDeleted);
+
+        builder.HasIndex(l => l.DeletedAt)
+            .HasFilter("is_deleted");
     }
 }

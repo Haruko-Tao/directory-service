@@ -17,8 +17,6 @@ public interface IDepartmentsRepository
     Task<int> CountChildrenAsync(Guid departmentId, CancellationToken cancellationToken);
     Task<int> CountLocationLinksForDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);
     Task<int> CountPositionLinksForDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);
-
-    Task RemoveAsync(Department department, CancellationToken cancellationToken);
     
     //связь отдел - локация
     Task AddDepartmentLocationAsync(DepartmentLocation departmentLocation, CancellationToken cancellationToken);
