@@ -58,4 +58,20 @@ public class Department
 
         return UnitResult.Success<Error>();
     }
+    
+    //SoftDelete
+    
+    public bool IsDeleted { get; private set; }
+    
+    public DateTime? DeletedAt { get; private set; }
+
+    public void SoftDelete(DateTime deleteTime)
+    {
+        if (IsDeleted)
+            return;
+
+        IsDeleted = true;
+
+        DeletedAt = deleteTime;
+    }
 }

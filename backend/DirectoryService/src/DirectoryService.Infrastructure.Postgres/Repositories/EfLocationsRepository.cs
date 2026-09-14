@@ -51,11 +51,4 @@ public sealed class EfLocationsRepository : ILocationsRepository
             .Take(pageSize)
             .ToListAsync(cancellationToken: cancellationToken);
     }
-
-    public Task RemoveAsync(Location location, CancellationToken cancellationToken)
-    {
-        _dbContext.Locations.Remove(location);
-        
-        return Task.CompletedTask;
-    }
 }

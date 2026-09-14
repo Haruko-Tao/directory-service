@@ -23,7 +23,9 @@ public sealed class PositionConfiguration : IEntityTypeConfiguration<Position>
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.HasIndex(p => p.Name).IsUnique();
+        builder.HasIndex(p => p.Name)
+            .IsUnique()
+            .HasFilter("is_deleted = false");
 
         builder.Property(p => p.CreatedAt)
             .HasColumnName("created_at")
@@ -32,5 +34,17 @@ public sealed class PositionConfiguration : IEntityTypeConfiguration<Position>
         builder.Property(p => p.UpdatedAt)
             .HasColumnName("updated_at")
             .IsRequired();
+
+        builder.Property(p => p.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired();
+
+        builder.Property(p => p.DeletedAt)
+            .HasColumnName("deleted_at");
+
+        builder.HasQueryFilter(p => !p.IsDeleted);
+
+        builder.HasIndex(p => p.DeletedAt)
+            .HasFilter("is_deleted");
     }
 }

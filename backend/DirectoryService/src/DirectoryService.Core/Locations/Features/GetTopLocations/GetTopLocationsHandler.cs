@@ -19,7 +19,10 @@ public sealed class GetTopLocationsHandler : IQueryHandler<GetTopLocationsQuery,
     public async Task<Result<IReadOnlyCollection<TopLocationsResponse>, Failure>> Handle(GetTopLocationsQuery query,
         CancellationToken cancellationToken)
     {
-        return await _readDbContext.Locations.GroupJoin(_readDbContext.DepartmentLocations, l => l.Id,
+        var activeLinks = _readDbContext.DepartmentLocations
+            .Where(dl => _readDbContext.Departments.Any(d => d.Id == dl.DepartmentId));
+        
+        return await _readDbContext.Locations.GroupJoin(activeLinks, l => l.Id,
             dl => dl.LocationId, (location, departmentLinks) => new 
             { 
                 Location = location,

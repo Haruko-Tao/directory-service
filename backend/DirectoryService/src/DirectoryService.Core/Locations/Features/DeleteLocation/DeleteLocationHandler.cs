@@ -44,7 +44,7 @@ public sealed class DeleteLocationHandler : ICommandHandler<DeleteLocationComman
             return Error.Conflict("location.in.use", $"Локация используется в {countDepartmentLocation} отделах").ToFailure();
         }
 
-        await _locationsRepository.RemoveAsync(locationResult.Value, cancellationToken);
+        locationResult.Value.SoftDelete(DateTime.UtcNow);
 
         var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
 

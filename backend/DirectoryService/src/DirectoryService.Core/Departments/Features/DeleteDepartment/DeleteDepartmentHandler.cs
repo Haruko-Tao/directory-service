@@ -50,7 +50,7 @@ public sealed class DeleteDepartmentHandler : ICommandHandler<DeleteDepartmentCo
                 .ToFailure();
         }
         
-        await _departmentsRepository.RemoveAsync(departmentResult.Value, cancellationToken);
+        departmentResult.Value.SoftDelete(DateTime.UtcNow);
 
         var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
 

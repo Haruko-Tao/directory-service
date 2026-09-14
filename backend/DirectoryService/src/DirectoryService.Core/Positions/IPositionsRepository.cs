@@ -16,6 +16,4 @@ public interface IPositionsRepository
     Task<Result<Position ,Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Position>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken);
-
-    Task RemoveAsync(Position position, CancellationToken cancellationToken);
 }

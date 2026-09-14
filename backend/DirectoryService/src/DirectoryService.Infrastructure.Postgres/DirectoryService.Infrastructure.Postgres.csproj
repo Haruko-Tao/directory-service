@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <NoWarn>CA1861;CA1848;S2139;CA1031</NoWarn>
+    <NoWarn>CA1861;CA1848;S2139;CA1031;CA1873</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,6 +10,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Dapper" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions"/>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions"/>
   </ItemGroup>
 
   <ItemGroup>
