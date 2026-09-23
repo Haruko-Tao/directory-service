@@ -329,7 +329,7 @@ public class LocationsGeneratedTests : IAsyncLifetime
     // ---------- DELETE ----------
 
     [Fact]
-    public async Task Delete_location_without_links_removes_row()
+    public async Task Delete_location_without_links_marks_as_deleted()
     {
         // Arrange
         var locationId = await CreateLocationAsync("Офис на снос");
@@ -339,13 +339,32 @@ public class LocationsGeneratedTests : IAsyncLifetime
             new Uri($"/locations/{locationId}", UriKind.Relative));
 
         // Assert
+        //status this Operations
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
 
         using var scope = _webFactory.Services.CreateScope();
         var stillExists = await DbContext(scope).Locations
             .AnyAsync(l => l.Id == locationId);
 
         Assert.False(stillExists);
+        
+        //Строка в БД есть и помечена
+        var marksAsDeletedEntity =
+            await DbContext(scope).Locations.IgnoreQueryFilters().FirstOrDefaultAsync(l => l.Id == locationId);
+
+
+        Assert.NotNull(marksAsDeletedEntity);
+
+        Assert.True(marksAsDeletedEntity.IsDeleted);
+
+        Assert.NotNull(marksAsDeletedEntity.DeletedAt);
+
+        //чтение наружу не видно
+        var responseMarksAsDeletedEntity = await _httpClient.GetAsync(
+            new Uri($"/locations/{locationId}", UriKind.Relative));
+
+        Assert.Equal(HttpStatusCode.NotFound, responseMarksAsDeletedEntity.StatusCode);
     }
 
     [Fact]
