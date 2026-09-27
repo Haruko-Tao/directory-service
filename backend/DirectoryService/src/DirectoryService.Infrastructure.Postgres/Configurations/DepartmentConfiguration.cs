@@ -30,6 +30,7 @@ public sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departmen
 
         builder.Property(d => d.Path)
             .HasColumnName("path")
+            .HasColumnType("ltree")
             .HasConversion(path => path.Value, value => Path.Create(value, null).Value!)
             .IsRequired();
 
@@ -66,5 +67,8 @@ public sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departmen
         builder.HasIndex(d => d.Slug)
             .IsUnique()
             .HasFilter("is_deleted = false");
+
+        builder.Property(d => d.Depth)
+            .HasColumnName("depth");
     }
 }

@@ -147,7 +147,7 @@ public class DepartmentsGeneratedTests : IAsyncLifetime
             .FirstOrDefaultAsync(d => d.Id == body.Data);
 
         Assert.NotNull(child);
-        Assert.Equal("golovnoy/prodazhi", child.Path.Value);
+        Assert.Equal("golovnoy.prodazhi", child.Path.Value);
         Assert.Equal(parentId, child.ParentId);
     }
 

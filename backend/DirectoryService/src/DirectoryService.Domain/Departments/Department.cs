@@ -19,6 +19,8 @@ public class Department
     
     public DateTime UpdatedAt { get; private set; }
     
+    public int Depth { get; private set; }
+    
     //EF Core
     private Department()
     {
@@ -44,9 +46,11 @@ public class Department
 
         if (pathResult.IsFailure)
             return pathResult.Error;
-
+        
         var department = new Department(
             Guid.NewGuid(), name, slug, pathResult.Value!, parentId, DateTime.UtcNow, DateTime.UtcNow);
+
+        department.Depth = pathResult.Value.Value.Split('.').Length - 1;
 
         return department;
     }

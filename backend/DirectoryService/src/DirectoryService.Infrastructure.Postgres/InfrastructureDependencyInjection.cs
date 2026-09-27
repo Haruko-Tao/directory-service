@@ -28,6 +28,8 @@ public static class InfrastructureDependencyInjection
             provider.GetRequiredService<ILoggerFactory>()));
 
         services.AddScoped<ILocationsReadRepository>(_ => new DapperLocationsRepository(connectionString));
+
+        services.AddScoped<IDepartmentsReadRepository>(_ => new DapperDepartmentsRepository(connectionString));
         
         services.AddScoped<ILocationsRepository, EfLocationsRepository>();
             
