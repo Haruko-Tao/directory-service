@@ -32,6 +32,7 @@ public sealed class GetDepartmentsHandler : IQueryHandler<GetDepartmentsQuery, P
             return new Failure(validationResult.Errors.Select(l => (Error)l.CustomState!));
 
         var departmentsQuery = _readDbContext.Departments;
+        
 #pragma warning disable CA1304, CA1311 
         if (query.Search is not null)
         {

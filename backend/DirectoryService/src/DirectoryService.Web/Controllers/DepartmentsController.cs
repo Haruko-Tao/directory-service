@@ -6,10 +6,14 @@ using DirectoryService.Core.Departments.Features.AddLocation;
 using DirectoryService.Core.Departments.Features.AddPosition;
 using DirectoryService.Core.Departments.Features.CreateDepartment;
 using DirectoryService.Core.Departments.Features.DeleteDepartment;
+using DirectoryService.Core.Departments.Features.GetAncestors;
+using DirectoryService.Core.Departments.Features.GetChildren;
 using DirectoryService.Core.Departments.Features.GetDepartmentById;
 using DirectoryService.Core.Departments.Features.GetDepartments;
+using DirectoryService.Core.Departments.Features.GetDepartmentsTree;
 using DirectoryService.Core.Departments.Features.RemoveLocation;
 using DirectoryService.Core.Departments.Features.RemovePosition;
+using DirectoryService.Core.Departments.Features.SearchTree;
 using DirectoryService.Core.Departments.Features.UpdateDepartment;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -168,6 +172,63 @@ public sealed class DepartmentsController : ControllerBase
         var command = new RemovePositionCommand(departmentId, positionId);
 
         var result = await handler.Handle(command, cancellationToken);
+
+        return result.ToApiResult();
+    }
+
+    [HttpGet("tree")]
+    [ProducesResponseType<Envelope<IReadOnlyCollection<DepartmentTreeNodeDto>>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> GetTree(
+        [FromServices] IQueryHandler<GetDepartmentsTreeQuery, IReadOnlyCollection<DepartmentTreeNodeDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetDepartmentsTreeQuery();
+
+        var result = await handler.Handle(query, cancellationToken);
+
+        return result.ToApiResult();
+    }
+
+    [HttpGet("{id:guid}/children")]
+    [ProducesResponseType<Envelope<IReadOnlyCollection<DepartmentTreeNodeDto>>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> GetChildren([FromRoute] Guid id,
+        [FromServices] IQueryHandler<GetChildrenQuery, IReadOnlyCollection<DepartmentTreeNodeDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetChildrenQuery(id);
+
+        var result = await handler.Handle(query, cancellationToken);
+
+        return result.ToApiResult();
+    }
+
+    [HttpGet("{id:guid}/ancestors")]
+    [ProducesResponseType<Envelope<IReadOnlyCollection<DepartmentTreeNodeDto>>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> GetAncestors([FromRoute] Guid id,
+        [FromServices] IQueryHandler<GetAncestorsQuery, IReadOnlyCollection<DepartmentTreeNodeDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetAncestorsQuery(id);
+
+        var result = await handler.Handle(query, cancellationToken);
+
+        return result.ToApiResult();
+    }
+
+    [HttpGet("tree/search")]
+    [ProducesResponseType<Envelope<IReadOnlyCollection<DepartmentTreeNodeDto>>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> SearchTree([FromQuery] string q,
+        [FromServices] IQueryHandler<SearchTreeQuery, IReadOnlyCollection<DepartmentTreeNodeDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var query = new SearchTreeQuery(q);
+        
+        var result = await handler.Handle(query, cancellationToken);
 
         return result.ToApiResult();
     }

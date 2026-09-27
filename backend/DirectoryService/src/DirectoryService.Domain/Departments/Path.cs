@@ -17,7 +17,7 @@ public class Path
         if (string.IsNullOrWhiteSpace(slug))
             return Error.Validation("slug.not.space", "Slug не может быть пустым при построении пути!");
 
-        var value = parentPath is null ? slug : $"{parentPath.Value}/{slug}";
+        var value = parentPath is null ? slug : $"{parentPath.Value}.{slug}";
 
         return new Path(value);
     }
