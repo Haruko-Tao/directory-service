@@ -67,6 +67,16 @@ public sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departmen
         builder.HasIndex(d => d.Slug)
             .IsUnique()
             .HasFilter("is_deleted = false");
+        
+        //Ускоряет endpoint get {id}children 
+        builder.HasIndex(d => d.ParentId)
+            .HasFilter("is_deleted = false");
+        
+        //Ускоряет GET /departments/{id}/ancestors
+        builder.HasIndex(d => d.Path, "IX_departments_path_gist")
+            .HasMethod("gist");
+        
+        //Ускоряет поиск по имени через триграммы и расширение pg_trgm все лежит в миграции AddWorkGinTrgm 
 
         builder.Property(d => d.Depth)
             .HasColumnName("depth");

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DirectoryService.Infrastructure.Postgres;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DirectoryService.Infrastructure.Postgres.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261001131341_AddWorkIndexesOnGetChildren")]
+    partial class AddWorkIndexesOnGetChildren
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,6 @@ namespace DirectoryService.Infrastructure.Postgres.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "ltree");
-            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("DirectoryService.Domain.DepartmentLocations.DepartmentLocation", b =>
@@ -147,10 +149,6 @@ namespace DirectoryService.Infrastructure.Postgres.Migrations
                     b.HasIndex("Slug")
                         .IsUnique()
                         .HasFilter("is_deleted = false");
-
-                    b.HasIndex(new[] { "Path" }, "IX_departments_path_gist");
-
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex(new[] { "Path" }, "IX_departments_path_gist"), "gist");
 
                     b.ToTable("departments", (string)null);
                 });
