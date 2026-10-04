@@ -5,6 +5,7 @@ using DirectoryService.Domain.DepartmentPositions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Shared;
 using Microsoft.EntityFrameworkCore;
+using Path = DirectoryService.Domain.Departments.Path;
 
 namespace DirectoryService.Infrastructure.Postgres.Repositories;
 
@@ -34,6 +35,24 @@ public sealed class EfDepartmentsRepository : IDepartmentsRepository
         return departmentResult ?? (Result<Department, Error>)Error.NotFound("department.not.found", $"Отдела с {id} не существует");
     }
 
+    public async Task<Result<Department, Error>> GetByIdIncludingDeletedAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var department = await _dbContext.Departments.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+
+        if (department is null)
+            return Error.NotFound("department.not.found", $"Отдела с {id} не существует");
+
+        return department;
+    }
+
+    public async Task<UnitResult<Error>> ReloadAsync(Department department, CancellationToken cancellationToken)
+    {
+         await _dbContext.Entry(department).ReloadAsync(cancellationToken);
+         
+         return UnitResult.Success<Error>();
+    }
+
     public async Task<bool> ExistsDepartmentLocationAsync(Guid locationId, Guid departmentId, CancellationToken cancellationToken)
     {
         return await _dbContext.DepartmentLocations
@@ -47,6 +66,37 @@ public sealed class EfDepartmentsRepository : IDepartmentsRepository
         return await _dbContext.DepartmentPositions.
             CountAsync(dp => dp.PositionId == positionId 
                              && _dbContext.Departments.Any(d => d.Id == dp.DepartmentId), cancellationToken);
+    }
+
+    public async Task<UnitResult<Error>> MoveSubtreeAsync(Path departmentPath, Path? newParentPath, CancellationToken cancellationToken)
+    {
+        int rows = 0;
+        
+        if (newParentPath is null)
+        {
+            rows = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""
+                 UPDATE departments
+                 SET path = subpath(path, nlevel({departmentPath.Value}::ltree) - 1),
+                     depth = nlevel(subpath(path, nlevel({departmentPath.Value}::ltree) - 1)) - 1 
+                 WHERE path <@ {departmentPath.Value}::ltree; 
+                 """, cancellationToken);
+        }
+        else
+        {
+            rows = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""
+                 UPDATE departments
+                 SET path = {newParentPath.Value}::ltree || subpath(path, nlevel({departmentPath.Value}::ltree) - 1),
+                     depth = nlevel({newParentPath.Value}::ltree || subpath(path, nlevel({departmentPath.Value}::ltree) - 1)) - 1
+                 WHERE path <@ {departmentPath.Value}::ltree; 
+                 """, cancellationToken);
+        }
+
+        if (rows == 0)
+            return Error.NotFound("department.path.not.found", "Не удалось перенести путь");
+
+        return UnitResult.Success<Error>();
     }
 
     public async Task<UnitResult<Error>> RemoveDepartmentLocationAsync(Guid locationId, Guid departmentId, CancellationToken cancellationToken)

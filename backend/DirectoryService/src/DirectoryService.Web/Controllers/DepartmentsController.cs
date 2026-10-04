@@ -1,4 +1,5 @@
-﻿using DirectoryService.Contracts;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Contracts;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Departments;
@@ -11,10 +12,12 @@ using DirectoryService.Core.Departments.Features.GetChildren;
 using DirectoryService.Core.Departments.Features.GetDepartmentById;
 using DirectoryService.Core.Departments.Features.GetDepartments;
 using DirectoryService.Core.Departments.Features.GetDepartmentsTree;
+using DirectoryService.Core.Departments.Features.MoveDepartment;
 using DirectoryService.Core.Departments.Features.RemoveLocation;
 using DirectoryService.Core.Departments.Features.RemovePosition;
 using DirectoryService.Core.Departments.Features.SearchTree;
 using DirectoryService.Core.Departments.Features.UpdateDepartment;
+using DirectoryService.Shared;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
@@ -229,6 +232,24 @@ public sealed class DepartmentsController : ControllerBase
         var query = new SearchTreeQuery(q);
         
         var result = await handler.Handle(query, cancellationToken);
+
+        return result.ToApiResult();
+    }
+
+    [HttpPut("{departmentId:guid}/parent")]
+    [ProducesResponseType<Envelope<MoveDepartmentResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<Envelope<object>>(StatusCodes.Status500InternalServerError)]
+    public async Task<IResult> MoveSubtree([FromRoute] Guid departmentId,
+        [FromServices] ICommandHandler<MoveDepartmentCommand, MoveDepartmentResponse> handler,
+        [FromBody] MoveDepartmentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new MoveDepartmentCommand(departmentId, request.ParentId);
+
+        var result = await handler.Handle(command, cancellationToken);
 
         return result.ToApiResult();
     }
