@@ -1,5 +1,7 @@
 ﻿using DirectoryService.Infrastructure.Postgres;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -19,6 +21,15 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>, IAsyncL
     public HttpClient HttpClient { get; private set; } = null!;
 
     private NpgsqlConnection _dbConnection = null!;
+
+    // TODO(разобрать): написано ментором (DS-23). Один счётчик на всё приложение в тестах.
+    public UpdateCommandCounter UpdateCounter { get; } = new();
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.ConfigureTestServices(services =>
+            services.ConfigureDbContext<AppDbContext>(options => options.AddInterceptors(UpdateCounter)));
+    }
     
     public async Task InitializeAsync()
     {

@@ -62,6 +62,14 @@ public class Department
 
         return UnitResult.Success<Error>();
     }
+
+    public UnitResult<Error> ChangeParent(Guid? parentId)
+    {
+        ParentId = parentId;
+        UpdatedAt = DateTime.UtcNow;
+
+        return UnitResult.Success<Error>();
+    }
     
     //SoftDelete
     
