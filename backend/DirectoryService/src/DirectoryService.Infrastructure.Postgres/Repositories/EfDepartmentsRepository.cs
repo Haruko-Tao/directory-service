@@ -5,6 +5,7 @@ using DirectoryService.Domain.DepartmentPositions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Shared;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Path = DirectoryService.Domain.Departments.Path;
 
 namespace DirectoryService.Infrastructure.Postgres.Repositories;
@@ -72,31 +73,36 @@ public sealed class EfDepartmentsRepository : IDepartmentsRepository
     {
         int rows = 0;
         
-        if (newParentPath is null)
+        try
         {
-            rows = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                $"""
-                 UPDATE departments
-                 SET path = subpath(path, nlevel({departmentPath.Value}::ltree) - 1),
-                     depth = nlevel(subpath(path, nlevel({departmentPath.Value}::ltree) - 1)) - 1 
-                 WHERE path <@ {departmentPath.Value}::ltree; 
-                 """, cancellationToken);
+            if (newParentPath is null)
+            {
+                rows = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
+                    $"""
+                     UPDATE departments
+                     SET path = subpath(path, nlevel({departmentPath.Value}::ltree) - 1),
+                         depth = nlevel(subpath(path, nlevel({departmentPath.Value}::ltree) - 1)) - 1 
+                     WHERE path <@ {departmentPath.Value}::ltree; 
+                     """, cancellationToken);
+            }
+            else
+            {
+                rows = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
+                    $"""
+                     UPDATE departments
+                     SET path = {newParentPath.Value}::ltree || subpath(path, nlevel({departmentPath.Value}::ltree) - 1),
+                         depth = nlevel({newParentPath.Value}::ltree || subpath(path, nlevel({departmentPath.Value}::ltree) - 1)) - 1
+                     WHERE path <@ {departmentPath.Value}::ltree; 
+                     """, cancellationToken);
+            }
         }
-        else
+        catch (PostgresException pg) when (pg.SqlState is PostgresErrorCodes.DeadlockDetected or PostgresErrorCodes.SerializationFailure)
         {
-            rows = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                $"""
-                 UPDATE departments
-                 SET path = {newParentPath.Value}::ltree || subpath(path, nlevel({departmentPath.Value}::ltree) - 1),
-                     depth = nlevel({newParentPath.Value}::ltree || subpath(path, nlevel({departmentPath.Value}::ltree) - 1)) - 1
-                 WHERE path <@ {departmentPath.Value}::ltree; 
-                 """, cancellationToken);
+            return Error.Conflict("department.move.conflict",
+                "При выполнение параллельной операции перемещения возник конфликт");    
         }
 
-        if (rows == 0)
-            return Error.NotFound("department.path.not.found", "Не удалось перенести путь");
-
-        return UnitResult.Success<Error>();
+        return rows == 0 ? Error.NotFound("department.path.not.found", "Не удалось перенести путь") : UnitResult.Success<Error>();
     }
 
     public async Task<UnitResult<Error>> RemoveDepartmentLocationAsync(Guid locationId, Guid departmentId, CancellationToken cancellationToken)
@@ -163,6 +169,28 @@ public sealed class EfDepartmentsRepository : IDepartmentsRepository
     public async Task<bool> IsSlugTakenAsync(Slug slug, Guid? parentId, CancellationToken cancellationToken)
     {
         return await _dbContext.Departments.AnyAsync(d => d.Slug == slug && d.ParentId == parentId, cancellationToken);
+    }
+
+    public async Task<UnitResult<Error>> LockForMoveAsync(Guid departmentId, Guid? parentId, CancellationToken cancellationToken)
+    {
+        var ids = new List<Guid>();
+        
+        ids.Add(departmentId);
+
+        if (parentId is not null)
+            ids.Add(parentId.Value);
+
+        try
+        {
+            await _dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"SELECT id FROM departments WHERE id = ANY({ids}) ORDER BY id FOR UPDATE", cancellationToken);
+        }
+        catch (PostgresException pg) when (pg.SqlState is PostgresErrorCodes.DeadlockDetected or PostgresErrorCodes.SerializationFailure)
+        {
+            return Error.Conflict("department.move.conflict",
+                "При выполнение параллельной операции перемещения возник конфликт");
+        }
+        return UnitResult.Success<Error>();
     }
 
     public async Task<int> CountChildrenAsync(Guid departmentId, CancellationToken cancellationToken)

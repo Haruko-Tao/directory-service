@@ -17,6 +17,7 @@ public interface IDepartmentsRepository
     Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
     Task<IReadOnlyList<Department>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken);
     Task<bool> IsSlugTakenAsync(Slug slug, Guid? parentId, CancellationToken cancellationToken);
+    Task<UnitResult<Error>> LockForMoveAsync(Guid departmentId, Guid? parentId, CancellationToken cancellationToken);
 
     Task<int> CountChildrenAsync(Guid departmentId, CancellationToken cancellationToken);
     Task<int> CountLocationLinksForDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);

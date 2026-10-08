@@ -25,6 +25,19 @@ public class MoveDepartmentHandler : ICommandHandler<MoveDepartmentCommand, Move
         if (command.DepartmentId == command.ParentId)
             return Error.Validation("department.move.parent_is_self", "Отдел не может быть перенесен внутрь себя").ToFailure();
 
+        var transactionResult = await _transaction.BeginTransactionAsync(cancellationToken);
+
+        if (transactionResult.IsFailure)
+            return transactionResult.Error.ToFailure();
+
+        //Открываем транзакцию для корректных ответов при параллельных запросах
+        await using var transaction = transactionResult.Value;
+
+        var lockResult = await _repository.LockForMoveAsync(command.DepartmentId, command.ParentId, cancellationToken);
+        
+        if (lockResult.IsFailure)
+            return lockResult.Error.ToFailure();
+        
         var departmentResult = await _repository.GetByIdAsync(command.DepartmentId, cancellationToken);
 
         if (departmentResult.IsFailure)
@@ -33,7 +46,7 @@ public class MoveDepartmentHandler : ICommandHandler<MoveDepartmentCommand, Move
         var department = departmentResult.Value;
 
         Department? parent = null;
-        
+
         if (command.ParentId != null)
         {
             var parentResult = await _repository.GetByIdIncludingDeletedAsync(command.ParentId.Value, cancellationToken);
@@ -61,13 +74,6 @@ public class MoveDepartmentHandler : ICommandHandler<MoveDepartmentCommand, Move
         {
            return Error.Conflict("department.move.cycle", "Нельзя перенести внутрь собственного поддерева").ToFailure();
         }
-
-        var transactionResult = await _transaction.BeginTransactionAsync(cancellationToken);
-
-        if (transactionResult.IsFailure)
-            return transactionResult.Error.ToFailure();
-
-        await using var transaction = transactionResult.Value;
 
         department.ChangeParent(command.ParentId);
 
