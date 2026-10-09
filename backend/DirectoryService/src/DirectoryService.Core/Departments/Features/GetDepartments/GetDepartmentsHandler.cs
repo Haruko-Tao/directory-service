@@ -5,7 +5,7 @@ using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Core.Departments.Extensions;
 using DirectoryService.Domain.Departments;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

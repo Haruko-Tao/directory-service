@@ -1,5 +1,5 @@
 ﻿using DirectoryService.Contracts;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using DirectoryService.Web.Extensions;
 using Serilog.Context;
 

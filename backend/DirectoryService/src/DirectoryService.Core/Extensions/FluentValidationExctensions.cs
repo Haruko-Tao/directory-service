@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using FluentValidation;
 using FluentValidation.Results;
 

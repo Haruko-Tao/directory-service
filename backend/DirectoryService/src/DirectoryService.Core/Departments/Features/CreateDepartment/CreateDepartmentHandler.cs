@@ -4,7 +4,7 @@ using DirectoryService.Core.Database;
 using DirectoryService.Core.Locations;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Path = DirectoryService.Domain.Departments.Path;

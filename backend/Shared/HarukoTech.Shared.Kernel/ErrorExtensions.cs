@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Shared;
+﻿namespace HarukoTech.Shared.Kernel;
 
 public static class ErrorExtensions
 {

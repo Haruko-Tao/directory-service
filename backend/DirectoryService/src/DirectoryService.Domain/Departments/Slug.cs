@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using CSharpFunctionalExtensions;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 
 namespace DirectoryService.Domain.Departments;
 

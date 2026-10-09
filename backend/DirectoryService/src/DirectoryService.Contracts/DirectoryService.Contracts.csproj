@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DirectoryService.SharedKernel\DirectoryService.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\Shared\HarukoTech.Shared.Kernel\HarukoTech.Shared.Kernel.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Shared;
+﻿namespace HarukoTech.Shared.Kernel;
 
 public class DomainException : Exception
 {

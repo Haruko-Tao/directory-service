@@ -2,7 +2,7 @@
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Core.Departments;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Core.Locations.Features.DeleteLocation;

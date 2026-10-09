@@ -3,7 +3,7 @@ using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Positions;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 

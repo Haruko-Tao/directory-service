@@ -2,7 +2,7 @@
 using DirectoryService.Contracts;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Abstractions;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using FluentValidation;
 
 namespace DirectoryService.Core.Locations.Features.GetLocations;

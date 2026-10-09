@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Abstractions;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Core.Departments.Features.GetAncestors;

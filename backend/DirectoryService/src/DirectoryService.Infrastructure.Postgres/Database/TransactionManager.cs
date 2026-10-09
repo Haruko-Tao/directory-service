@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Core.Database;
 using DirectoryService.Infrastructure.Postgres.Repositories;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;

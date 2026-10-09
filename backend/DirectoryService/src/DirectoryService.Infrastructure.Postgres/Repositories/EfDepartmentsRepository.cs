@@ -3,7 +3,7 @@ using DirectoryService.Core.Departments;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.DepartmentPositions;
 using DirectoryService.Domain.Departments;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Path = DirectoryService.Domain.Departments.Path;

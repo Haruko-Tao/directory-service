@@ -2,7 +2,7 @@
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Core.Locations.Features.GetTopLocations;

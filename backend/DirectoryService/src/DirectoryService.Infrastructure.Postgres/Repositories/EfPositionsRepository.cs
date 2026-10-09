@@ -2,7 +2,7 @@
 using DirectoryService.Core.Positions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Positions;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Postgres.Repositories;

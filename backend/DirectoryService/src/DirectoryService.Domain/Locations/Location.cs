@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 
 namespace DirectoryService.Domain.Locations;
 

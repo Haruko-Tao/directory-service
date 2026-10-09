@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 
 namespace DirectoryService.Contracts;
 

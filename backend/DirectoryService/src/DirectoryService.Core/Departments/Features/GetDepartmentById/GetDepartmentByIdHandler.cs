@@ -2,7 +2,7 @@
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

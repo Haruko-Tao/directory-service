@@ -17,7 +17,7 @@ using DirectoryService.Core.Departments.Features.RemoveLocation;
 using DirectoryService.Core.Departments.Features.RemovePosition;
 using DirectoryService.Core.Departments.Features.SearchTree;
 using DirectoryService.Core.Departments.Features.UpdateDepartment;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
