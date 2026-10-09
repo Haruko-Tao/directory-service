@@ -6,10 +6,9 @@
 
   <ItemGroup>
     <PackageReference Include="CSharpFunctionalExtensions" />
+    <PackageReference Include="HarukoTech.SharedKernel"/>
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Shared\HarukoTech.Shared.Kernel\HarukoTech.Shared.Kernel.csproj" />
-  </ItemGroup>
+  
+  
     
 </Project>

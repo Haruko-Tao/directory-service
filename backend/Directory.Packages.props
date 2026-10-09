@@ -6,6 +6,7 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="HarukoTech.SharedKernel" Version="0.1.0"/>
     <!-- Паттерн Result<T, Error> для бизнес-ошибок -->
     <PackageVersion Include="CSharpFunctionalExtensions" Version="3.6.0" />
     <!-- База данных -->
