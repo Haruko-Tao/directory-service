@@ -1,0 +1,24 @@
+name: Publish HarukoTech.SharedKernel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Pack
+        run: dotnet pack backend/Shared/HarukoTech.Shared.Kernel/HarukoTech.Shared.Kernel.csproj -c Release -o artifacts
+
+      - name: Push
+        run: dotnet nuget push "artifacts/*.nupkg" --source "https://nuget.pkg.github.com/Haruko-Tao/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
