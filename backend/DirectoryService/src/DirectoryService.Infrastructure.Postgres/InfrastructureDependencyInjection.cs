@@ -5,6 +5,7 @@ using DirectoryService.Core.Locations;
 using DirectoryService.Core.Positions;
 using DirectoryService.Infrastructure.Postgres.Database;
 using DirectoryService.Infrastructure.Postgres.Repositories;
+using HarukoTech.Shared.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

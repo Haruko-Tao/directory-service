@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
+using HarukoTech.Shared.Core.Abstractions;
 using HarukoTech.Shared.Kernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

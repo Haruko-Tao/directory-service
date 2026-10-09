@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using DirectoryService.Contracts;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Infrastructure.Postgres;
+using HarukoTech.Shared.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

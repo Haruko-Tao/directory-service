@@ -1,9 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts;
 using DirectoryService.Contracts.Locations;
-using DirectoryService.Core.Abstractions;
-using DirectoryService.Core.Database;
-using DirectoryService.Core.Locations;
 using DirectoryService.Core.Locations.Features.CreateLocation;
 using DirectoryService.Core.Locations.Features.DeleteLocation;
 using DirectoryService.Core.Locations.Features.GetLocationById;
@@ -11,6 +8,8 @@ using DirectoryService.Core.Locations.Features.GetLocations;
 using DirectoryService.Core.Locations.Features.GetTopLocations;
 using DirectoryService.Core.Locations.Features.UpdateLocation;
 using DirectoryService.Web.Extensions;
+using HarukoTech.Shared.Core;
+using HarukoTech.Shared.Core.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 

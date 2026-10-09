@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using HarukoTech.Shared.Kernel;
 
-namespace DirectoryService.Core.Abstractions;
+namespace HarukoTech.Shared.Core.Abstractions;
 
 #pragma warning disable CA1040
 public interface ICommand {};

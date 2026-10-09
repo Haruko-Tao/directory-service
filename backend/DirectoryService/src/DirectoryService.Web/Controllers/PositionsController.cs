@@ -1,10 +1,10 @@
 ﻿using DirectoryService.Contracts;
 using DirectoryService.Contracts.Positions;
-using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Positions.Features.CreatePosition;
 using DirectoryService.Core.Positions.Features.DeletePosition;
 using DirectoryService.Core.Positions.Features.UpdatePosition;
 using DirectoryService.Web.Extensions;
+using HarukoTech.Shared.Core.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;

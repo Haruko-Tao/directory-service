@@ -1,9 +1,10 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts;
 using DirectoryService.Contracts.Locations;
-using DirectoryService.Core.Abstractions;
 using HarukoTech.Shared.Kernel;
 using FluentValidation;
+using HarukoTech.Shared.Core;
+using HarukoTech.Shared.Core.Abstractions;
 
 namespace DirectoryService.Core.Locations.Features.GetLocations;
 

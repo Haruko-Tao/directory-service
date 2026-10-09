@@ -1,10 +1,8 @@
-﻿using DirectoryService.Core.Abstractions;
-using DirectoryService.Core.Database;
-using DirectoryService.Core.Departments;
-using DirectoryService.Core.Locations;
-using DirectoryService.Core.Locations.Features.CreateLocation;
+﻿using DirectoryService.Core.Locations.Features.CreateLocation;
 using FluentValidation;
+using HarukoTech.Shared.Core;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace DirectoryService.Core;
 
@@ -14,13 +12,7 @@ public static class CoreDependencyInjection
     {
         services.AddValidatorsFromAssemblyContaining<CreateLocationsValidator>();
 
-        services.Scan(scan => scan.FromAssemblies(typeof(CoreDependencyInjection).Assembly)
-            .AddClasses(classes => classes.AssignableToAny(
-                typeof(ICommandHandler<,>),
-                typeof(IQueryHandler<,>),
-                typeof(ICommandHandler<>)))
-            .AsSelfWithInterfaces()
-            .WithScopedLifetime());
+        services.AddHandlers(typeof(CoreDependencyInjection).Assembly);
 
         return services;
     }

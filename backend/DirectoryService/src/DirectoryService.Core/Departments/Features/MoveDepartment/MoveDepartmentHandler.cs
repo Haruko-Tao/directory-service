@@ -1,8 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Domain.Departments;
+using HarukoTech.Shared.Core.Abstractions;
+using HarukoTech.Shared.Core.Database;
 using HarukoTech.Shared.Kernel;
 
 namespace DirectoryService.Core.Departments.Features.MoveDepartment;

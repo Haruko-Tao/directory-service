@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Core.Abstractions;
+using HarukoTech.Shared.Core.Abstractions;
 using HarukoTech.Shared.Kernel;
 
 namespace DirectoryService.Core.Departments.Features.GetDepartmentsTree;

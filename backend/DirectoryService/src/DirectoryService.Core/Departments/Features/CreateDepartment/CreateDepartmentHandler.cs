@@ -1,11 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
-using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Core.Locations;
 using DirectoryService.Domain.DepartmentLocations;
 using DirectoryService.Domain.Departments;
 using HarukoTech.Shared.Kernel;
 using FluentValidation;
+using HarukoTech.Shared.Core.Abstractions;
+using HarukoTech.Shared.Core.Database;
 using Microsoft.Extensions.Logging;
 using Path = DirectoryService.Domain.Departments.Path;
 

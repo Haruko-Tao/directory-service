@@ -1,12 +1,13 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts;
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Core.Departments.Extensions;
 using DirectoryService.Domain.Departments;
 using HarukoTech.Shared.Kernel;
 using FluentValidation;
+using HarukoTech.Shared.Core;
+using HarukoTech.Shared.Core.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
