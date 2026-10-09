@@ -1,9 +1,10 @@
-﻿using DirectoryService.Contracts;
-using DirectoryService.Shared;
-using DirectoryService.Web.Extensions;
+﻿using HarukoTech.Shared.Framework.Extensions;
+using HarukoTech.Shared.Kernel;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Serilog.Context;
 
-namespace DirectoryService.Web.Middlewares;
+namespace HarukoTech.Shared.Framework.Middlewares;
 
 public class ExceptionMiddleware
 {

@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace DirectoryService.Shared;
+namespace HarukoTech.Shared.Kernel;
 
 public class Failure : IEnumerable<Error>
 {

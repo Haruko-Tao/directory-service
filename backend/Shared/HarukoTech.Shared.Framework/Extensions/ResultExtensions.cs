@@ -1,10 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
-using DirectoryService.Contracts;
-using DirectoryService.Shared;
-using Microsoft.AspNetCore.Mvc;
+using HarukoTech.Shared.Kernel;
+using Microsoft.AspNetCore.Http;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
-namespace DirectoryService.Web.Extensions;
+namespace HarukoTech.Shared.Framework.Extensions;
 
 public static class ResultExtensions
 {

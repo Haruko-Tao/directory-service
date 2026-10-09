@@ -1,8 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts;
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Core.Abstractions;
-using DirectoryService.Core.Departments;
+
 using DirectoryService.Core.Departments.Features.AddLocation;
 using DirectoryService.Core.Departments.Features.AddPosition;
 using DirectoryService.Core.Departments.Features.CreateDepartment;
@@ -17,10 +16,11 @@ using DirectoryService.Core.Departments.Features.RemoveLocation;
 using DirectoryService.Core.Departments.Features.RemovePosition;
 using DirectoryService.Core.Departments.Features.SearchTree;
 using DirectoryService.Core.Departments.Features.UpdateDepartment;
-using DirectoryService.Shared;
-using DirectoryService.Web.Extensions;
+using HarukoTech.Shared.Core;
+using HarukoTech.Shared.Core.Abstractions;
+using HarukoTech.Shared.Framework;
+using HarukoTech.Shared.Framework.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
 

@@ -1,5 +1,5 @@
 ﻿using DirectoryService.Core.Extensions;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using FluentValidation;
 
 namespace DirectoryService.Core.Departments.Features.GetDepartments;

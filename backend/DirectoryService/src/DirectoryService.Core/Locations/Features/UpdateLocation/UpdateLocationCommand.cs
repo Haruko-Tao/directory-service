@@ -1,5 +1,5 @@
 ﻿using DirectoryService.Contracts.Locations;
-using DirectoryService.Core.Abstractions;
+using HarukoTech.Shared.Core.Abstractions;
 
 namespace DirectoryService.Core.Locations.Features.UpdateLocation;
 

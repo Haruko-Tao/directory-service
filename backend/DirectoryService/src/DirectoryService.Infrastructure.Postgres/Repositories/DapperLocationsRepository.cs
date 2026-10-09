@@ -1,8 +1,8 @@
 ﻿using Dapper;
-using DirectoryService.Contracts;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Locations;
 using DirectoryService.Core.Locations.Features.GetLocations;
+using HarukoTech.Shared.Core;
 using Npgsql;
 
 

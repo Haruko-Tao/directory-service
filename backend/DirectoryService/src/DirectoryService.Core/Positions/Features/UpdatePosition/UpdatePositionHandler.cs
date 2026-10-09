@@ -1,9 +1,10 @@
 ﻿using CSharpFunctionalExtensions;
-using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Domain.Departments;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using FluentValidation;
+using HarukoTech.Shared.Core.Abstractions;
+using HarukoTech.Shared.Core.Database;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Core.Positions.Features.UpdatePosition;

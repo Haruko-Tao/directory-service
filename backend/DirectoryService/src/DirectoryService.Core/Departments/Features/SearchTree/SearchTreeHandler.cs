@@ -1,8 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Core.Abstractions;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 using FluentValidation;
+using HarukoTech.Shared.Core.Abstractions;
 
 
 namespace DirectoryService.Core.Departments.Features.SearchTree;

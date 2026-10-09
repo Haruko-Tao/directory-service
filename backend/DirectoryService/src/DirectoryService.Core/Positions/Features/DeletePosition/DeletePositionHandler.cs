@@ -1,8 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
-using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Core.Departments;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Core.Abstractions;
+using HarukoTech.Shared.Core.Database;
+using HarukoTech.Shared.Kernel;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Core.Positions.Features.DeletePosition;

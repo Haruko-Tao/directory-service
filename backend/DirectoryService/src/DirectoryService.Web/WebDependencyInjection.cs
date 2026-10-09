@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
-using DirectoryService.Contracts;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Framework;
+using HarukoTech.Shared.Kernel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 

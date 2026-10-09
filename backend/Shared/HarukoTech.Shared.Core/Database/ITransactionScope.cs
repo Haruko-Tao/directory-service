@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Kernel;
 
-namespace DirectoryService.Core.Database;
+namespace HarukoTech.Shared.Core.Database;
 
 public interface ITransactionScope : IAsyncDisposable
 {

@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
-using DirectoryService.Core.Database;
-using DirectoryService.Shared;
+using HarukoTech.Shared.Core.Database;
+using HarukoTech.Shared.Kernel;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
