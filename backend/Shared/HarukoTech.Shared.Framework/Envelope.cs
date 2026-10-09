@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using HarukoTech.Shared.Kernel;
 
-namespace DirectoryService.Contracts;
+namespace HarukoTech.Shared.Framework;
 
 public record Envelope<T>
 {

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using DirectoryService.Core;
 using DirectoryService.Infrastructure.Postgres;
 using DirectoryService.Web;
-using DirectoryService.Web.Middlewares;
+using HarukoTech.Shared.Framework.Middlewares;
 using Scalar.AspNetCore;
 using Serilog;
 

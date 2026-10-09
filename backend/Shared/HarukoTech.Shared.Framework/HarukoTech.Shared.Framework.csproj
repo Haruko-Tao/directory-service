@@ -1,11 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+    <PropertyGroup>
+    <NoWarn>$(NoWarn);CA1716;CA1848;CA1031;</NoWarn>
+</PropertyGroup>
+    
     <ItemGroup>
       <ProjectReference Include="..\HarukoTech.Shared.Core\HarukoTech.Shared.Core.csproj" />
     </ItemGroup>
     
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Serilog"/>
     </ItemGroup>
 
 </Project>

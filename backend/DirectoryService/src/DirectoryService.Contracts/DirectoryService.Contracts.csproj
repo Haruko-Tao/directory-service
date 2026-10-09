@@ -1,11 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
     
-  </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Shared\HarukoTech.Shared.Kernel\HarukoTech.Shared.Kernel.csproj" />
-  </ItemGroup>
 
 </Project>

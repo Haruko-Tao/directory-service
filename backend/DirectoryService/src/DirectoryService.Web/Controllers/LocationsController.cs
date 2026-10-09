@@ -7,9 +7,10 @@ using DirectoryService.Core.Locations.Features.GetLocationById;
 using DirectoryService.Core.Locations.Features.GetLocations;
 using DirectoryService.Core.Locations.Features.GetTopLocations;
 using DirectoryService.Core.Locations.Features.UpdateLocation;
-using DirectoryService.Web.Extensions;
 using HarukoTech.Shared.Core;
 using HarukoTech.Shared.Core.Abstractions;
+using HarukoTech.Shared.Framework;
+using HarukoTech.Shared.Framework.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
