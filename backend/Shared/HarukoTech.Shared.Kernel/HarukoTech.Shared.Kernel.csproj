@@ -2,7 +2,15 @@
 
     <PropertyGroup>
         <NoWarn>$(NoWarn);CA1716;RCS1194;CA1032;CA2225</NoWarn>
+        
+        <PackageId>HarukoTech.SharedKernel</PackageId>
+        <Version>0.1.0</Version>
+        <Authors>Haruko</Authors>
+        <Description>DomainException, Error, ErrorExtensions, Failure</Description>
+        <RepositoryUrl>https://github.com/Haruko-Tao/directory-service</RepositoryUrl>
+        <DebugType>embedded</DebugType>
     </PropertyGroup>
+    
     <ItemGroup>
         <PackageReference Include="CSharpFunctionalExtensions"/>
     </ItemGroup>
